@@ -273,11 +273,6 @@ body {
     </div>
   </div>
 
-  <div class="chart-panel full-width" style="margin-bottom:24px">
-    <h3>📦 各店铺业绩概览</h3>
-    <div class="store-grid" id="store-cards"></div>
-  </div>
-
   <div class="footer">东菱旗舰店 · 数据来源：生意参谋 & 生意经 & 站内广告（万相台） · 目标：扣退后 ¥1亿（退款率40%）· 更新时间：2026-07-24</div>
 </div>
 <script>
@@ -700,19 +695,7 @@ function renderCore(state){
     series:[{type:'pie', radius:['38%','68%'], center:['50%','52%'], data:catPieData, label:{color:'#c8d6e2', formatter:'{b}\n{d}%'}, itemStyle:{borderColor:'#0e1a26',borderWidth:2}}]
   },true);
 
-  var ranked=sids.slice().sort(function(a,b){return modelPay[b]-modelPay[a];});
-  var cards=ranked.map(function(s){
-    var ref=modelRef[s];
-    var refTxt=ref!==undefined?fmtWan(ref):'—';
-    var buyTxt=modelBuy[s]!==undefined?fmtInt(modelBuy[s]):'—';
-    return '<div class="store-card"><div class="store-name">'+mfn(s)+'</div>'
-      +'<div class="store-pay">'+fmtWan(modelPay[s])+'</div>'
-      +'<div class="store-meta">退款 '+refTxt+' · 件数 '+fmtInt(modelPieces[s])+' · 买家 '+buyTxt+'</div></div>';
-  }).join('');
-  var sc=document.getElementById('store-cards'); if(sc) sc.innerHTML=cards;
-
-
-  // --- 各型号销售排行表（modelPay + STORE_DAILY 退款/订单）---
+  // --- 各型号销售排行表（统一生参口径）---
   var ranked=sids.slice().sort(function(a,b){return modelPay[b]-modelPay[a];});
   var TCOLW=['4%','22%','14%','15%','11%','11%','23%'];
   var TW=function(i){return ' style="width:'+TCOLW[i]+'"';};
