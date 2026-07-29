@@ -217,23 +217,34 @@ body {
   <div class="kpi-grid" id="kpi-offsite"></div>
   <div class="kpi-grid" id="kpi-outad"></div>
 
-  <!-- 广告明细表格 -->
-  <div class="chart-panel full-width" style="margin-bottom:24px">
-    <h3>📋 广告渠道明细汇总</h3>
-    <div style="max-height:500px;overflow-y:auto">
-      <table class="data-table" id="ad-detail-table">
-        <thead><tr>
-          <th style="width:8%">分类</th><th style="width:17%">渠道</th><th class="text-right" style="width:15%">花费</th><th class="text-right" style="width:17%">成交金额</th><th class="text-right" style="width:11%">ROI</th><th class="text-right" style="width:14%">花费占比</th>
-        </tr></thead>
-        <tbody></tbody>
-      </table>
+  <!-- 广告明细表格 + 花费占比饼图（并列） -->
+  <div class="charts-grid-2">
+    <div class="chart-panel">
+      <h3>📋 广告渠道明细汇总</h3>
+      <div style="max-height:500px;overflow-y:auto">
+        <table class="data-table" id="ad-detail-table">
+          <thead><tr>
+            <th style="width:8%">分类</th><th style="width:18%">渠道</th><th class="text-right" style="width:18%">花费</th><th class="text-right" style="width:22%">成交金额</th><th class="text-right" style="width:14%">ROI</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="chart-panel">
+      <h3>广告渠道花费占比</h3>
+      <div class="chart-container large" id="chart-ad-pie"></div>
     </div>
   </div>
 
-  <div class="charts-grid">
+  <!-- 型号销售分布 + 类目销售分布（并列） -->
+  <div class="charts-grid-2">
     <div class="chart-panel">
       <h3>各型号销售额分布</h3>
       <div class="chart-container large" id="chart-store-pie"></div>
+    </div>
+    <div class="chart-panel">
+      <h3>各类目销售额分布</h3>
+      <div class="chart-container large" id="chart-cat-pie"></div>
     </div>
   </div>
 
@@ -244,14 +255,10 @@ body {
     </div>
   </div>
 
-  <div class="charts-grid-2">
+  <div class="charts-grid">
     <div class="chart-panel">
       <h3>站外广告渠道 ROI 对比</h3>
       <div class="chart-container large" id="chart-offsite-roi"></div>
-    </div>
-    <div class="chart-panel">
-      <h3>广告渠道花费占比</h3>
-      <div class="chart-container large" id="chart-ad-pie"></div>
     </div>
   </div>
 
@@ -552,33 +559,28 @@ function renderCore(state){
   ];
   var tbody=document.querySelector('#ad-detail-table tbody');
   if(tbody){
-    var COLW=['8%','17%','15%','17%','11%','14%'];
+    var COLW=['8%','18%','18%','22%','14%'];
     var W=function(i){return ' style="width:'+COLW[i]+'"';};
     var trows='';
     adRows.forEach(function(x){
       var roi=x.s?x.r/x.s:0;
-      var pct=totalS?x.s/totalS:0;
       trows+='<tr><td'+W(0)+'>'+x.cat+'</td><td'+W(1)+'><strong>'+x.name+'</strong></td>'
         +'<td class="text-right"'+W(2)+'>'+fmtWan(x.s)+'</td>'
         +'<td class="text-right"'+W(3)+'>'+fmtWan(x.r)+'</td>'
-        +'<td class="text-right"'+W(4)+'>'+roi.toFixed(2)+'</td>'
-        +'<td class="text-right"'+W(5)+'>'+(pct*100).toFixed(1)+'%</td></tr>';
+        +'<td class="text-right"'+W(4)+'>'+roi.toFixed(2)+'</td></tr>';
     });
     trows+='<tr style="background:rgba(0,210,255,.08);font-weight:600"><td colspan="2">站内合计</td>'
       +'<td class="text-right"'+W(2)+'>'+fmtWan(insiteS)+'</td>'
       +'<td class="text-right"'+W(3)+'>'+fmtWan(insiteR)+'</td>'
-      +'<td class="text-right"'+W(4)+'>'+(insiteS?insiteR/insiteS:0).toFixed(2)+'</td>'
-      +'<td class="text-right"'+W(5)+'>'+(totalS?insiteS/totalS*100:0).toFixed(1)+'%</td></tr>';
+      +'<td class="text-right"'+W(4)+'>'+(insiteS?insiteR/insiteS:0).toFixed(2)+'</td></tr>';
     trows+='<tr style="background:rgba(255,166,2,.08);font-weight:600"><td colspan="2">站外合计</td>'
       +'<td class="text-right"'+W(2)+'>'+fmtWan(offsiteS)+'</td>'
       +'<td class="text-right"'+W(3)+'>'+fmtWan(offsiteR)+'</td>'
-      +'<td class="text-right"'+W(4)+'>'+(offsiteS?offsiteR/offsiteS:0).toFixed(2)+'</td>'
-      +'<td class="text-right"'+W(5)+'>'+(totalS?offsiteS/totalS*100:0).toFixed(1)+'%</td></tr>';
+      +'<td class="text-right"'+W(4)+'>'+(offsiteS?offsiteR/offsiteS:0).toFixed(2)+'</td></tr>';
     trows+='<tr style="background:rgba(46,204,113,.12);font-weight:700"><td colspan="2">总计</td>'
       +'<td class="text-right"'+W(2)+'>'+fmtWan(totalS)+'</td>'
       +'<td class="text-right"'+W(3)+'>'+fmtWan(totalR)+'</td>'
-      +'<td class="text-right"'+W(4)+'>'+(totalS?totalR/totalS:0).toFixed(2)+'</td>'
-      +'<td class="text-right"'+W(5)+'>100.0%</td></tr>';
+      +'<td class="text-right"'+W(4)+'>'+(totalS?totalR/totalS:0).toFixed(2)+'</td></tr>';
     tbody.innerHTML=trows;
   }
 
@@ -629,11 +631,26 @@ function renderCore(state){
     storePay[sid]=p; storeRef[sid]=r; storePieces[sid]=pc; storeOrders[sid]=o;
   });
   var sids=Object.keys(storePay).filter(function(s){return storePay[s]>0;});
-  var pieData=sids.map(function(s){return {name:mn(s),value:Math.round(storePay[s]/10000)};});
+  var pieData=sids.map(function(s){return {name:mn(s),value:Math.round(storePay[s]/10000)};}).sort(function(a,b){return b.value-a.value;});
   gc('chart-store-pie').setOption({
     tooltip:{trigger:'item', formatter:function(p){return p.name+'<br/>销售额: '+fmtWan(p.value*10000);}},
     legend:{show:false},
     series:[{type:'pie', radius:['38%','68%'], center:['50%','52%'], data:pieData, label:{color:'#c8d6e2', formatter:'{b}\n{d}%'}, itemStyle:{borderColor:'#0e1a26',borderWidth:2}}]
+  },true);
+
+  // --- 类目销售分布饼图（CAT_MONTHLY 按月筛选聚合）---
+  var catPay={};
+  (months||[]).forEach(function(m){
+    Object.keys(CAT_MONTHLY).forEach(function(k){
+      var c=CAT_MONTHLY[k];
+      if(c.m===m){ if(!catPay[c.name]) catPay[c.name]=0; catPay[c.name]+=c.pay; }
+    });
+  });
+  var catPieData=Object.keys(catPay).map(function(n){return {name:n, value:Math.round(catPay[n]/10000)};}).filter(function(d){return d.value>0;}).sort(function(a,b){return b.value-a.value;});
+  gc('chart-cat-pie').setOption({
+    tooltip:{trigger:'item', formatter:function(p){return p.name+'<br/>销售额: '+fmtWan(p.value*10000);}},
+    legend:{show:false},
+    series:[{type:'pie', radius:['38%','68%'], center:['50%','52%'], data:catPieData, label:{color:'#c8d6e2', formatter:'{b}\n{d}%'}, itemStyle:{borderColor:'#0e1a26',borderWidth:2}}]
   },true);
   var ranked=sids.slice().sort(function(a,b){return storePay[b]-storePay[a];});
     var cards=ranked.map(function(s){
