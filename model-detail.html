@@ -110,6 +110,13 @@ body {
 .chart-container { width: 100%; height: 320px; }
 .chart-container.large { height: 400px; }
 .chart-container.xl { height: 480px; }
+.trend-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:16px; }
+.trend-header h3 { margin-bottom:0; }
+.trend-controls { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.seg { display:inline-flex; border:1px solid var(--border); border-radius:8px; overflow:hidden; }
+.seg-btn { background:transparent; color:var(--text-secondary); border:none; padding:6px 18px; font-size:13px; cursor:pointer; transition:all .15s; }
+.seg-btn.active { background:var(--accent); color:#06121f; font-weight:600; }
+.dim-select { background:var(--card-bg); color:var(--text); border:1px solid var(--border); border-radius:8px; padding:6px 12px; font-size:13px; cursor:pointer; outline:none; }
 .data-table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
 .data-table th { text-align: left; padding: 8px 10px; color: var(--text-secondary); font-weight: 500; border-bottom: 1px solid var(--border); font-size: 12px; white-space: nowrap; }
 .data-table td { padding: 7px 10px; border-bottom: 1px solid rgba(42,58,74,0.5); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -184,16 +191,26 @@ body {
   <!-- KPI 卡片 -->
   <div class="kpi-grid" id="kpi-grid"></div>
 
-  <!-- 图表区域 -->
-  <div class="charts-grid-2">
-    <div class="chart-panel">
-      <h3>📊 月度销售趋势（支付 vs 退款）</h3>
-      <div class="chart-container large" id="chart-monthly"></div>
+  <!-- 维度趋势图（粒度 + 指标筛选）-->
+  <div class="chart-panel full-width" style="margin-bottom:24px">
+    <div class="trend-header">
+      <h3 id="trend-title">📈 维度趋势</h3>
+      <div class="trend-controls">
+        <div class="seg">
+          <button id="trend-gran-month" class="seg-btn active" type="button">月度</button>
+          <button id="trend-gran-day" class="seg-btn" type="button">日度</button>
+        </div>
+        <select id="trend-dim" class="dim-select">
+          <option value="pay">支付金额</option>
+          <option value="net">扣退后实际</option>
+          <option value="refund">退款额</option>
+          <option value="vis">商品访客数</option>
+          <option value="buy">支付买家数</option>
+          <option value="conv">支付转化率</option>
+        </select>
+      </div>
     </div>
-    <div class="chart-panel">
-      <h3>📈 日销售趋势</h3>
-      <div class="chart-container large" id="chart-daily"></div>
-    </div>
+    <div class="chart-container xl" id="chart-trend"></div>
   </div>
 
   <!-- 商品明细表 -->
@@ -354,32 +371,59 @@ var kpiHtml = kpis.map(function(k){
 }).join('');
 document.getElementById('kpi-grid').innerHTML = kpiHtml;
 
-// ============ 月度趋势图 ============
-var monthsArr = Object.keys(monthlyPay).map(Number).sort();
-var payData = monthsArr.map(function(m){ return (monthlyPay[m]/10000).toFixed(1); });
-var refData = monthsArr.map(function(m){ return (monthlyRef[m]/10000).toFixed(1); });
-gc('chart-monthly').setOption({
-  grid:{left:'3%',right:'5%',bottom:'10%',top:'12%',containLabel:true},
-  tooltip:{trigger:'axis',
-    formatter:function(p){ var s=p[0].axisValue+'月<br/>'; p.forEach(function(i){s+=i.marker+i.seriesName+': '+i.value+'万<br/>';}); return s; }},
-  legend:{data:['支付金额','退款额'], textStyle:{color:'#8395a7'}, bottom:0},
-  xAxis:{type:'category', data:monthsArr.map(function(m){return m+'月';}), axisLabel:{color:'#8395a7'}},
-  yAxis:{type:'value', axisLabel:{color:'#8395a7', formatter:function(v){return v+'万';}}, splitLine:{lineStyle:{color:'#2a3a4a'}}},
-  series:[
-    {name:'支付金额',type:'bar',data:payData,itemStyle:{color:'#00d2ff',borderRadius:[4,4,0,0]},barMaxWidth:28},
-    {name:'退款额',type:'bar',data:refData,itemStyle:{color:'#ff6b6b',borderRadius:[4,4,0,0]},barMaxWidth:28}
-  ]
-},true);
-
-// ============ 日销售趋势图 ============
-gc('chart-daily').setOption({
-  grid:{left:'3%',right:'5%',bottom:'12%',top:'10%',containLabel:true},
-  tooltip:{trigger:'axis', formatter:function(p){ return p[0].axisValue+'<br/>'+p[0].marker+'支付: '+fmtWan(p[0].value*10000); }},
-  xAxis:{type:'category', data:dailyPay.map(function(x){return x.d.slice(5);}), axisLabel:{color:'#8395a7',interval:Math.floor(dailyPay.length/10),rotate:30}},
-  yAxis:{type:'value', axisLabel:{color:'#8395a7', formatter:fmtWan}, splitLine:{lineStyle:{color:'#2a3a4a'}}},
-  series:[{name:'日支付',type:'line',data:dailyPay.map(function(x){return x.v;}),smooth:true,showSymbol:false,
-    itemStyle:{color:'#00d2ff'},lineStyle:{color:'#00d2ff',width:2},areaStyle:{color:'rgba(0,210,255,0.08)'}}]
-},true);
+// ============ 维度趋势图（粒度切换 + 指标维度选择）============
+// 维度定义：daily(d) 返回该日数值；type 决定格式化方式
+var trendDims = {
+  pay:    {name:'支付金额',  type:'money', color:'#00d2ff', daily:function(d){ return sd[d] ? (sd[d].pay||0) : 0; }},
+  net:    {name:'扣退后实际',type:'money', color:'#00e396', daily:function(d){ return sd[d] ? ((sd[d].pay||0)-(sd[d].refund||0)) : 0; }},
+  refund: {name:'退款额',    type:'money', color:'#ff6b6b', daily:function(d){ return sd[d] ? (sd[d].refund||0) : 0; }},
+  vis:    {name:'商品访客数',type:'int',   color:'#54a0ff', daily:function(d){ var v=0; (MODEL_PIDS[MODEL_CODE]||[]).forEach(function(pid){ if(PROD_DAILY[pid]&&PROD_DAILY[pid][d]) v+=(PROD_DAILY[pid][d].v||0); }); return v; }},
+  buy:    {name:'支付买家数',type:'int',   color:'#48dbfb', daily:function(d){ var b=0; (MODEL_PIDS[MODEL_CODE]||[]).forEach(function(pid){ if(PROD_DAILY[pid]&&PROD_DAILY[pid][d]) b+=(PROD_DAILY[pid][d].b||0); }); return b; }},
+  conv:   {name:'支付转化率',type:'pct',   color:'#1dd1a1', daily:function(d){ var v=0,b=0; (MODEL_PIDS[MODEL_CODE]||[]).forEach(function(pid){ if(PROD_DAILY[pid]&&PROD_DAILY[pid][d]){ v+=(PROD_DAILY[pid][d].v||0); b+=(PROD_DAILY[pid][d].b||0);} }); return v>0?b/v:0; }}
+};
+// 月度访客/买家合计（转化率月度口径 = 买家合计/访客合计）
+var monthlyVis=[], monthlyBuy=[];
+ALL_MONTHS.forEach(function(m){
+  var v=0,b=0; (MODEL_PIDS[MODEL_CODE]||[]).forEach(function(pid){
+    if(!PROD_DAILY[pid]) return;
+    ALL_DATES.forEach(function(d){ if(+d.slice(5,7)===m){ var pd=PROD_DAILY[pid][d]; if(pd){ v+=(pd.v||0); b+=(pd.b||0);} } });
+  });
+  monthlyVis.push(v); monthlyBuy.push(b);
+});
+function dimMonthlyArr(dim){
+  if(dim==='conv') return ALL_MONTHS.map(function(m,i){ return monthlyVis[i]>0?monthlyBuy[i]/monthlyVis[i]:0; });
+  var mMap={}; ALL_DATES.forEach(function(d){ var mo=+d.slice(5,7); mMap[mo]=(mMap[mo]||0)+trendDims[dim].daily(d); });
+  return ALL_MONTHS.map(function(m){ return mMap[m]||0; });
+}
+function dimDailyArr(dim){ return ALL_DATES.map(function(d){ return trendDims[dim].daily(d); }); }
+var trendGran='month', trendDim='pay';
+function renderTrend(){
+  var meta=trendDims[trendDim], isMonth=(trendGran==='month'), cats, vals, fmtAxis, tipFmt;
+  if(isMonth){
+    cats=ALL_MONTHS.map(function(m){return m+'月';});
+    vals=dimMonthlyArr(trendDim);
+    fmtAxis=function(v){ if(meta.type==='money') return (v/10000).toFixed(0)+'万'; if(meta.type==='int') return fmtInt(v); return (v*100).toFixed(1)+'%'; };
+    tipFmt=function(v){ if(meta.type==='money') return fmtWan(v); if(meta.type==='int') return fmtInt(v); return (v*100).toFixed(2)+'%'; };
+  } else {
+    cats=ALL_DATES.map(function(d){return d.slice(5);});
+    vals=dimDailyArr(trendDim);
+    fmtAxis=function(v){ if(meta.type==='money') return fmtWan(v); if(meta.type==='int') return fmtInt(v); return (v*100).toFixed(1)+'%'; };
+    tipFmt=function(v){ if(meta.type==='money') return fmtWan(v); if(meta.type==='int') return fmtInt(v); return (v*100).toFixed(2)+'%'; };
+  }
+  gc('chart-trend').setOption({
+    grid:{left:'3%',right:'5%',bottom:isMonth?'8%':'14%',top:'14%',containLabel:true},
+    tooltip:{trigger:'axis', formatter:function(p){ return p[0].axisValue+(isMonth?'月':'')+'<br/>'+p[0].marker+meta.name+': '+tipFmt(p[0].value); }},
+    xAxis:{type:'category', data:cats, axisLabel:{color:'#8395a7', interval:isMonth?0:Math.floor(cats.length/12), rotate:isMonth?0:30}},
+    yAxis:{type:'value', axisLabel:{color:'#8395a7', formatter:fmtAxis}, splitLine:{lineStyle:{color:'#2a3a4a'}}},
+    series:[{name:meta.name, type:isMonth?'bar':'line', data:vals, smooth:!isMonth, showSymbol:false,
+      itemStyle:{color:meta.color}, lineStyle:{color:meta.color,width:2}, areaStyle:{color:meta.color, opacity:0.08}, barMaxWidth:32}]
+  },true);
+  document.getElementById('trend-title').textContent = '📈 '+meta.name+' · '+(isMonth?'月度':'日度')+'趋势';
+}
+document.getElementById('trend-gran-month').addEventListener('click', function(){ trendGran='month'; this.classList.add('active'); document.getElementById('trend-gran-day').classList.remove('active'); renderTrend(); });
+document.getElementById('trend-gran-day').addEventListener('click', function(){ trendGran='day'; this.classList.add('active'); document.getElementById('trend-gran-month').classList.remove('active'); renderTrend(); });
+document.getElementById('trend-dim').addEventListener('change', function(){ trendDim=this.value; renderTrend(); });
+renderTrend();
 
 // ============ 商品明细表 ============
 var prods=[];
