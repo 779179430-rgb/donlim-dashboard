@@ -687,7 +687,7 @@ function renderCore(state){
       var e=sd[d]; ts+=(e.s||0); tr+=(e.r||0); tq+=(e.q||0); to+=(e.o||0);
     });
     syjSales[code]=ts; syjRef[code]=tr; syjQty[code]=tq; syjOrd[code]=to;
-    syjRrate[code]=ts?tr/ts:0;
+    syjRrate[code]=ts+tr>0?tr/(ts+tr):0;
   });
   var pieData=sids.map(function(s){return {name:mn(s),value:Math.round(modelPay[s]/10000)};}).sort(function(a,b){return b.value-a.value;});
   gc('chart-store-pie').setOption({
@@ -725,7 +725,8 @@ function renderCore(state){
     var convRate = modelVis[s] ? modelBuy[s]/modelVis[s] : 0;
     var buy=modelBuy[s]||0;
     var avgPrice=buy?pay/buy:0;
-    var ss=syjSales[s], sr=syjRef[s], sq=syjQty[s], so=syjOrd[s], srr=syjRrate[s];
+    var ss=syjSales[s], sr=syjRef[s], sq=syjQty[s], so=syjOrd[s];
+    var syjGross=(ss!==undefined&&sr!==undefined)?ss+sr:undefined;
     var hasSyj=ss!==undefined;
     var refTxt=(modelRef[s]!==undefined)?fmtWan(ref):'\u2014';
     var netTxt=(modelRef[s]!==undefined)?fmtWan(net):'\u2014';
@@ -734,10 +735,10 @@ function renderCore(state){
     var buyTxt=(modelBuy[s]!==undefined && modelBuy[s]>0)?fmtInt(buy):'\u2014';
     var apTxt=(modelBuy[s]!==undefined && modelBuy[s]>0)?fmtWan(avgPrice):'\u2014';
     // 生意经对比值
-    var syPay=syjTag(ss, fmtWan);
-    var syNet=syjTag((ss!==undefined&&sr!==undefined)?ss-sr:null, fmtWan);
-    var syRR=syjTag(srr, function(v){return(v*100).toFixed(1)+'%';});
-    var syAp=syjTag((so>0&&ss!==undefined)?ss/so:null, fmtWan);
+    var syPay=syjTag(syjGross, fmtWan);
+    var syNet=syjTag(ss, fmtWan);
+    var syRR=syjTag((syjGross>0&&sr!==undefined)?sr/syjGross:null, function(v){return(v*100).toFixed(1)+'%';});
+    var syAp=syjTag((so>0&&syjGross!==undefined)?syjGross/so:null, fmtWan);
     trows+='<tr style="cursor:pointer" onclick="window.open(\'model-detail.html?model='+s+'\',\'_blank\')">'
       +'<td'+TW(0)+' class="text-right">'+(i+1)+'</td>'
       +'<td'+TW(1)+'><strong>'+mfn(s)+'</strong></td>'
