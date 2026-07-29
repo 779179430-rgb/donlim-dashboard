@@ -618,37 +618,52 @@ function renderCore(state){
   },true);
 
   // --- 型号编码→显示名称映射（来自店铺型号链接对应表）---
-  var MODEL_MAP={'018':'DL-TM018','1326':'DL-1326','1349':'DL-1349','1352':'DL-1352','4705':'DL-4705','4705PLUS':'DL-4705PLUS','6906':'DL-6906','7006':'DL-7006','7901':'DL-7901','7902':'DL-7902','9009':'DL-9009'};
-  var MODEL_FULL={'018':'DL-TM018(面包机)','1326':'DL-1326(果蔬清洗机)','1349':'DL-1349(厨师机/和面机)','1352':'DL-1352(面包机)','4705':'DL-4705(面包机)','4705PLUS':'DL-4705PLUS(面包机)','6906':'DL-6906(布艺清洗机)','7006':'DL-7006(蒸汽拖把)','7901':'DL-7901(蒸汽清洁机)','7902':'DL-7902(蒸汽清洁机)','9009':'DL-9009(电煮锅)'};
+  var MODEL_MAP={'018':'DL-TM018','1326':'DL-1326','1349':'DL-1349','1352':'DL-1352','4705':'DL-4705','4705PLUS':'DL-4705PLUS','6906':'DL-6906','7006':'DL-7006','7901':'DL-7901','7902':'DL-7902','9009':'DL-9009','3901':'DL-3901','8117':'DL-8117','5028':'DL-5028','5029':'DL-5029','1457':'DL-1457','M1':'DL-M1','B1':'DL-B1','1005':'DL-1005'};
+  var MODEL_FULL={'018':'DL-TM018(面包机)','1326':'DL-1326(果蔬清洗机)','1349':'DL-1349(厨师机/和面机)','1352':'DL-1352(面包机)','4705':'DL-4705(面包机)','4705PLUS':'DL-4705PLUS(面包机)','6906':'DL-6906(布艺清洗机)','7006':'DL-7006(蒸汽拖把)','7901':'DL-7901(蒸汽清洁机)','7902':'DL-7902(蒸汽清洁机)','9009':'DL-9009(电煮锅)','3901':'DL-3901(布艺清洗机)','8117':'DL-8117(多士炉)','5028':'DL-5028(绞肉机)','5029':'DL-5029(绞肉机)','1457':'DL-1457(破壁机)','M1':'DL-M1(制冰机)','B1':'DL-B1(烧水杯)','1005':'DL-1005(电蒸锅)'};
   function mn(s){ return MODEL_MAP[s]||s; }
   function mfn(s){ return MODEL_FULL[s]||s; }
 
-  // --- 各型号（STORE_DAILY 按日期筛选）---
-  var storePay={}, storeRef={}, storePieces={}, storeOrders={};
-  Object.keys(STORE_DAILY).forEach(function(sid){
-    var sd=STORE_DAILY[sid]; var p=0,r=0,pc=0,o=0;
-    dates.forEach(function(d){ if(sd[d]){ p+=sd[d].pay||0; r+=sd[d].refund||0; pc+=sd[d].pieces||0; o+=sd[d].orders||0; } });
-    storePay[sid]=p; storeRef[sid]=r; storePieces[sid]=pc; storeOrders[sid]=o;
+  // --- 型号→商品ID、型号→类目 映射（来自店铺型号链接对应表，用于按型号聚合 PM 完整商品明细）---
+  var MODEL_PIDS={
+    '7901':['838981817958'],'7902':['1000447457821'],'6906':['674178515519'],'3901':['1035589975567'],
+    '4705':['700251113311'],'1352':['800783310698'],'4705PLUS':['1055376369519'],'018':['587916526954'],
+    '1326':['705784153031'],'1349':['781304398878'],'7006':['831056753185'],
+    '8117':['594417980776'],'5028':['718104088075'],'5029':['905517647975'],'1457':['1033672604682'],
+    '9009':['685451605867'],'M1':['802444277863'],'B1':['618536379874'],'1005':['756656262858']
+  };
+  var CODE2CAT={'7901':'蒸汽清洁机','7902':'蒸汽清洁机','6906':'布艺清洗机','3901':'布艺清洗机','4705':'面包机','1352':'面包机','4705PLUS':'面包机','018':'面包机','1326':'果蔬清洗机','1349':'厨师机/和面机','7006':'蒸汽拖把','8117':'多士炉','5028':'绞肉机','5029':'绞肉机','1457':'破壁机','9009':'电煮锅','M1':'制冰机','B1':'烧水杯','1005':'电蒸锅'};
+  var PID2CODE={};
+  Object.keys(MODEL_PIDS).forEach(function(c){ MODEL_PIDS[c].forEach(function(p){ PID2CODE[p]=c; }); });
+
+  // --- 各型号 / 类目（PM 商品明细按型号聚合，完整口径；退款/订单从 STORE_DAILY 取）---
+  var modelPay={}, modelPieces={};
+  months.forEach(function(m){
+    Object.keys(PM).forEach(function(k){
+      var e=PM[k];
+      if(e.m===m){ var c=PID2CODE[e.pid]; if(c){ modelPay[c]=(modelPay[c]||0)+e.pay; modelPieces[c]=(modelPieces[c]||0)+(e.pieces||0); } }
+    });
   });
-  var sids=Object.keys(storePay).filter(function(s){return storePay[s]>0;});
-  var pieData=sids.map(function(s){return {name:mn(s),value:Math.round(storePay[s]/10000)};}).sort(function(a,b){return b.value-a.value;});
+  // STORE_DAILY 退款/订单（仅部分在册型号有数据，用于卡片展示）
+  var sdRef={}, sdOrd={};
+  Object.keys(STORE_DAILY).forEach(function(sid){
+    var sd=STORE_DAILY[sid]; var r=0,o=0;
+    dates.forEach(function(d){ if(sd[d]){ r+=sd[d].refund||0; o+=sd[d].orders||0; } });
+    sdRef[sid]=r; sdOrd[sid]=o;
+  });
+  var sids=Object.keys(modelPay).filter(function(s){return modelPay[s]>0;});
+  var pieData=sids.map(function(s){return {name:mn(s),value:Math.round(modelPay[s]/10000)};}).sort(function(a,b){return b.value-a.value;});
   gc('chart-store-pie').setOption({
     tooltip:{trigger:'item', formatter:function(p){return p.name+'<br/>销售额: '+fmtWan(p.value*10000);}},
     legend:{show:false},
     series:[{type:'pie', radius:['38%','68%'], center:['50%','52%'], data:pieData, label:{color:'#c8d6e2', formatter:'{b}\n{d}%'}, itemStyle:{borderColor:'#0e1a26',borderWidth:2}}]
   },true);
 
-  // --- 类目销售分布饼图（按型号产品类目聚合 storePay，与型号饼图同源）---
-  function catOf(s){
-    var f=MODEL_FULL[s];
-    if(f){ var i=f.indexOf('('), j=f.indexOf(')'); if(i>=0&&j>i) return f.slice(i+1,j); }
-    return s;
-  }
+  // --- 类目销售分布饼图（按型号类目聚合 modelPay，与型号饼图同源）---
   var catPay={};
   sids.forEach(function(s){
-    var c=catOf(s);
+    var c=CODE2CAT[s]||s;
     if(!catPay[c]) catPay[c]=0;
-    catPay[c]+=storePay[s];
+    catPay[c]+=modelPay[s];
   });
   var catPieData=Object.keys(catPay).map(function(n){return {name:n, value:Math.round(catPay[n]/10000)};}).filter(function(d){return d.value>0;}).sort(function(a,b){return b.value-a.value;});
   gc('chart-cat-pie').setOption({
@@ -656,12 +671,15 @@ function renderCore(state){
     legend:{show:false},
     series:[{type:'pie', radius:['38%','68%'], center:['50%','52%'], data:catPieData, label:{color:'#c8d6e2', formatter:'{b}\n{d}%'}, itemStyle:{borderColor:'#0e1a26',borderWidth:2}}]
   },true);
-  var ranked=sids.slice().sort(function(a,b){return storePay[b]-storePay[a];});
-    var cards=ranked.map(function(s){
-    var roi=storePay[s]?(storePay[s]-storeRef[s])/storePay[s]:0;
+
+  var ranked=sids.slice().sort(function(a,b){return modelPay[b]-modelPay[a];});
+  var cards=ranked.map(function(s){
+    var ref=sdRef[s], ord=sdOrd[s];
+    var refTxt=ref!==undefined?fmtWan(ref):'—';
+    var ordTxt=ord!==undefined?fmtInt(ord):'—';
     return '<div class="store-card"><div class="store-name">'+mfn(s)+'</div>'
-      +'<div class="store-pay">'+fmtWan(storePay[s])+'</div>'
-      +'<div class="store-meta">退款 '+fmtWan(storeRef[s])+' · 件数 '+fmtInt(storePieces[s])+' · 订单 '+fmtInt(storeOrders[s])+'</div></div>';
+      +'<div class="store-pay">'+fmtWan(modelPay[s])+'</div>'
+      +'<div class="store-meta">退款 '+refTxt+' · 件数 '+fmtInt(modelPieces[s])+' · 订单 '+ordTxt+'</div></div>';
   }).join('');
   var sc=document.getElementById('store-cards'); if(sc) sc.innerHTML=cards;
 
