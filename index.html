@@ -638,13 +638,17 @@ function renderCore(state){
     series:[{type:'pie', radius:['38%','68%'], center:['50%','52%'], data:pieData, label:{color:'#c8d6e2', formatter:'{b}\n{d}%'}, itemStyle:{borderColor:'#0e1a26',borderWidth:2}}]
   },true);
 
-  // --- 类目销售分布饼图（CAT_MONTHLY 按月筛选聚合）---
+  // --- 类目销售分布饼图（按型号产品类目聚合 storePay，与型号饼图同源）---
+  function catOf(s){
+    var f=MODEL_FULL[s];
+    if(f){ var i=f.indexOf('('), j=f.indexOf(')'); if(i>=0&&j>i) return f.slice(i+1,j); }
+    return s;
+  }
   var catPay={};
-  (months||[]).forEach(function(m){
-    Object.keys(CAT_MONTHLY).forEach(function(k){
-      var c=CAT_MONTHLY[k];
-      if(c.m===m){ if(!catPay[c.name]) catPay[c.name]=0; catPay[c.name]+=c.pay; }
-    });
+  sids.forEach(function(s){
+    var c=catOf(s);
+    if(!catPay[c]) catPay[c]=0;
+    catPay[c]+=storePay[s];
   });
   var catPieData=Object.keys(catPay).map(function(n){return {name:n, value:Math.round(catPay[n]/10000)};}).filter(function(d){return d.value>0;}).sort(function(a,b){return b.value-a.value;});
   gc('chart-cat-pie').setOption({
