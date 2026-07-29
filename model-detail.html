@@ -394,16 +394,14 @@ var KPI_DIM_MAP = { pay:'pay', net:'net', refund:'refund', vis:'vis', buy:'buy',
 function renderKPIs(a){
   currentAggs = a; // 存储供其他模块引用
   var kpis = [
-    { label:'支付金额',     value:fmtWan(a.pay),      sub:'PM完整口径',          color:'#00d2ff', dim:'pay' },
+    { label:'支付金额',     value:fmtWan(a.pay),      sub:'PM完整口径 · 日均 '+fmtWan(a.dayAvg), color:'#00d2ff', dim:'pay' },
     { label:'扣退后实际',   value:fmtWan(a.net),       sub:'退款 '+fmtWan(a.ref), color:'#00e396', dim:'net' },
     { label:'退款率',       value:fmtPct(a.rr,1),      sub:'退款额 '+fmtWan(a.ref),color:a.rr>0.4?'#ff6b6b':'#ffa502', dim:'refund' },
     { label:'商品访客数',   value:fmtInt(a.vis),        sub:'支付买家 '+fmtInt(a.buy),color:'#54a0ff', dim:'vis' },
     { label:'支付买家数',   value:fmtInt(a.buy),        sub:'访客→买家转化',        color:'#48dbfb', dim:'buy' },
     { label:'支付转化率',   value:a.vis>0?fmtPct(a.cr,2):'—', sub:'支付买家/商品访客', color:'#1dd1a1', dim:'conv' },
     { label:'支付件数',     value:fmtInt(a.pieces),     sub:'客单价 '+fmtWan(a.ap), color:'#7c5cfc', dim:'pc' },
-    { label:'客单价',       value:fmtWan(a.avgPay),     sub:'支付金额/买家数',      color:'#feca57', dim:'avgprice' },
-    { label:'日均销售',     value:fmtWan(a.dayAvg),     sub:'共'+a.days+'天',         color:'#00d2ff', dim:'dailyavg' },
-    { label:'笔均件数',     value:fmtInt(a.ppb),        sub:'件数/买家数',           color:'#8395a7', dim:'ppb' }
+    { label:'客单价',       value:fmtWan(a.avgPay),     sub:'支付金额/买家数',      color:'#feca57', dim:'avgprice' }
   ];
   var html = kpis.map(function(k){
     return '<div class="kpi-card clickable'+(k.dim?'':'"')+'"'+(k.dim?' data-dim="'+k.dim+'"':'')+'>'
