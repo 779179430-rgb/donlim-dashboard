@@ -267,7 +267,7 @@ body {
       <div style="max-height:520px;overflow-y:auto">
         <table class="data-table" id="top-products-table">
           <thead><tr>
-            <th style="width:4%">#</th><th style="width:16%">型号</th><th class="text-right" style="width:13%">支付金额<br/><small class="syj-hdr">(生意经)</small></th><th class="text-right" style="width:12%">扣退后实际<br/><small class="syj-hdr">(生意经)</small></th><th class="text-right" style="width:9%">退款率<br/><small class="syj-hdr">(生意经)</small></th><th class="text-right" style="width:9%">转化率</th><th class="text-right" style="width:13%">支付件数<br/><small class="syj-hdr">(生意经)</small></th><th style="width:16%"></th>
+            <th style="width:4%">#</th><th style="width:16%">型号</th><th class="text-right" style="width:13%">支付金额<br/><small class="syj-hdr">(生意经)</small></th><th class="text-right" style="width:12%">扣退后实际<br/><small class="syj-hdr">(生意经)</small></th><th class="text-right" style="width:9%">退款率<br/><small class="syj-hdr">(生意经)</small></th><th class="text-right" style="width:9%">转化率</th><th class="text-right" style="width:14%">支付件数<br/><small class="syj-hdr">生参 | 生意经(销量/退货)</small></th><th style="width:16%"></th>
           </tr></thead>
           <tbody></tbody>
         </table>
@@ -680,13 +680,13 @@ function renderCore(state){
   });
   var sids=Object.keys(modelPay).filter(function(s){return modelPay[s]>0;});
   // --- 生意经数据聚合（SYJ_DAILY：s=销售额 q=销售量 o=订单数 r=退款额 rr=退款率）---
-  var syjSales={}, syjRef={}, syjQty={}, syjOrd={}, syjRrate={};
+  var syjSales={}, syjRef={}, syjQty={}, syjOrd={}, syjRrate={}, syjRetQty={};
   Object.keys(SYJ_DAILY).forEach(function(code){
-    var sd=SYJ_DAILY[code]; var ts=0, tr=0, tq=0, to=0;
+    var sd=SYJ_DAILY[code]; var ts=0, tr=0, tq=0, to=0, trq=0;
     Object.keys(sd).forEach(function(d){
-      var e=sd[d]; ts+=(e.s||0); tr+=(e.r||0); tq+=(e.q||0); to+=(e.o||0);
+      var e=sd[d]; ts+=(e.s||0); tr+=(e.r||0); tq+=(e.q||0); to+=(e.o||0); trq+=(e.rq||0);
     });
-    syjSales[code]=ts; syjRef[code]=tr; syjQty[code]=tq; syjOrd[code]=to;
+    syjSales[code]=ts; syjRef[code]=tr; syjQty[code]=tq; syjOrd[code]=to; syjRetQty[code]=trq;
     syjRrate[code]=ts+tr>0?tr/(ts+tr):0;
   });
   var pieData=sids.map(function(s){return {name:mn(s),value:Math.round(modelPay[s]/10000)};}).sort(function(a,b){return b.value-a.value;});
@@ -712,7 +712,7 @@ function renderCore(state){
 
   // --- 各型号销售排行表（统一生参口径 + 生意经对比）---
   var ranked=sids.slice().sort(function(a,b){return modelPay[b]-modelPay[a];});
-  var TCOLW=['4%','16%','13%','12%','9%','9%','13%','16%'];
+  var TCOLW=['4%','16%','13%','12%','9%','9%','14%','13%'];
   var TW=function(i){return ' style="width:'+TCOLW[i]+'"';};
   function syjTag(val, fmtFn){ if(val===null||val===undefined) return ''; return '<span class="syj-cmp">'+fmtFn(val)+'</span>'; }
   var trows='';
@@ -723,7 +723,7 @@ function renderCore(state){
     var refRate=pay?ref/pay:0;
     var convRate = modelVis[s] ? modelBuy[s]/modelVis[s] : 0;
     var pieces=modelPieces[s]||0;
-    var ss=syjSales[s], sr=syjRef[s], sq=syjQty[s];
+    var ss=syjSales[s], sr=syjRef[s], sq=syjQty[s], srq=syjRetQty[s];
     var syjGross=(ss!==undefined&&sr!==undefined)?ss+sr:undefined;
     var refTxt=(modelRef[s]!==undefined)?fmtWan(ref):'\u2014';
     var netTxt=(modelRef[s]!==undefined)?fmtWan(net):'\u2014';
@@ -734,7 +734,8 @@ function renderCore(state){
     var syPay=syjTag(syjGross, fmtWan);
     var syNet=syjTag(ss, fmtWan);
     var syRR=syjTag((syjGross>0&&sr!==undefined)?sr/syjGross:null, function(v){return(v*100).toFixed(1)+'%';});
-    var syPcs=syjTag(sq, fmtInt);
+    // 生意经对比：销售量(q)+退货量(rq) 一并展示，表头已区分生参/生意经(销量/退货)
+    var syPcs = (sq!==undefined||srq!==undefined) ? '<span class="syj-cmp">生意经 销'+((sq!==undefined)?fmtInt(sq):'\u2014')+' / 退'+((srq!==undefined)?fmtInt(srq):'\u2014')+'</span>' : '';
     trows+='<tr style="cursor:pointer" onclick="window.open(\'model-detail.html?model='+s+'\',\'_blank\')">'
       +'<td'+TW(0)+' class="text-right">'+(i+1)+'</td>'
       +'<td'+TW(1)+'><strong>'+mfn(s)+'</strong></td>'
