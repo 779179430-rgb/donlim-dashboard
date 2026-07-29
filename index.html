@@ -660,32 +660,23 @@ function renderCore(state){
   var PID2CODE={};
   Object.keys(MODEL_PIDS).forEach(function(c){ MODEL_PIDS[c].forEach(function(p){ PID2CODE[p]=c; }); });
 
-  // --- 各型号 / 类目（PM 商品明细按型号聚合，完整口径；退款/订单从 STORE_DAILY 取）---
-  var modelPay={}, modelPieces={};
-  months.forEach(function(m){
-    Object.keys(PM).forEach(function(k){
-      var e=PM[k];
-      if(e.m===m){ var c=PID2CODE[e.pid]; if(c){ modelPay[c]=(modelPay[c]||0)+e.pay; modelPieces[c]=(modelPieces[c]||0)+(e.pieces||0); } }
-    });
-  });
-  // 型号级访客/支付买家（来自 PROD_DAILY，商品ID→型号映射；用于转化率=支付买家/商品访客）
-  var modelVis={}, modelBuy={};
+  // --- 各型号指标统一取自「商品数据源（生参）」sheet（PROD_DAILY）：支付p/退款r/件数pc/访客v/买家b ---
+  var modelPay={}, modelRef={}, modelPieces={}, modelVis={}, modelBuy={};
   months.forEach(function(m){
     Object.keys(PROD_DAILY).forEach(function(pid){
       var c=PID2CODE[pid];
       if(!c) return;
       var pd=PROD_DAILY[pid];
       Object.keys(pd).forEach(function(d){
-        if(+d.slice(5,7)===m){ modelVis[c]=(modelVis[c]||0)+(pd[d].v||0); modelBuy[c]=(modelBuy[c]||0)+(pd[d].b||0); }
+        if(+d.slice(5,7)===m){
+          modelPay[c]=(modelPay[c]||0)+(pd[d].p||0);
+          modelRef[c]=(modelRef[c]||0)+(pd[d].r||0);
+          modelPieces[c]=(modelPieces[c]||0)+(pd[d].pc||0);
+          modelVis[c]=(modelVis[c]||0)+(pd[d].v||0);
+          modelBuy[c]=(modelBuy[c]||0)+(pd[d].b||0);
+        }
       });
     });
-  });
-  // STORE_DAILY 退款/订单（仅部分在册型号有数据，用于卡片展示）
-  var sdRef={}, sdOrd={};
-  Object.keys(STORE_DAILY).forEach(function(sid){
-    var sd=STORE_DAILY[sid]; var r=0,o=0;
-    dates.forEach(function(d){ if(sd[d]){ r+=sd[d].refund||0; o+=sd[d].orders||0; } });
-    sdRef[sid]=r; sdOrd[sid]=o;
   });
   var sids=Object.keys(modelPay).filter(function(s){return modelPay[s]>0;});
   var pieData=sids.map(function(s){return {name:mn(s),value:Math.round(modelPay[s]/10000)};}).sort(function(a,b){return b.value-a.value;});
@@ -711,12 +702,12 @@ function renderCore(state){
 
   var ranked=sids.slice().sort(function(a,b){return modelPay[b]-modelPay[a];});
   var cards=ranked.map(function(s){
-    var ref=sdRef[s], ord=sdOrd[s];
+    var ref=modelRef[s];
     var refTxt=ref!==undefined?fmtWan(ref):'—';
-    var ordTxt=ord!==undefined?fmtInt(ord):'—';
+    var buyTxt=modelBuy[s]!==undefined?fmtInt(modelBuy[s]):'—';
     return '<div class="store-card"><div class="store-name">'+mfn(s)+'</div>'
       +'<div class="store-pay">'+fmtWan(modelPay[s])+'</div>'
-      +'<div class="store-meta">退款 '+refTxt+' · 件数 '+fmtInt(modelPieces[s])+' · 订单 '+ordTxt+'</div></div>';
+      +'<div class="store-meta">退款 '+refTxt+' · 件数 '+fmtInt(modelPieces[s])+' · 买家 '+buyTxt+'</div></div>';
   }).join('');
   var sc=document.getElementById('store-cards'); if(sc) sc.innerHTML=cards;
 
@@ -728,14 +719,14 @@ function renderCore(state){
   var trows='';
   ranked.forEach(function(s,i){
     var pay=modelPay[s]||0;
-    var ref=sdRef[s]||0;
+    var ref=modelRef[s]||0;
     var net=pay-ref;
     var refRate=pay?ref/pay:0;
-    var ord=sdOrd[s]||0;
+    var ord=0;
     var convRate = modelVis[s] ? modelBuy[s]/modelVis[s] : 0;
-    var refTxt=(sdRef[s]!==undefined)?fmtWan(ref):'\u2014';
-    var netTxt=(sdRef[s]!==undefined)?fmtWan(net):'\u2014';
-    var rrTxt=(sdRef[s]!==undefined)?(refRate*100).toFixed(1)+'%':'\u2014';
+    var refTxt=(modelRef[s]!==undefined)?fmtWan(ref):'\u2014';
+    var netTxt=(modelRef[s]!==undefined)?fmtWan(net):'\u2014';
+    var rrTxt=(modelRef[s]!==undefined)?(refRate*100).toFixed(1)+'%':'\u2014';
     var crTxt=(modelVis[s]!==undefined && modelVis[s]>0)?(convRate*100).toFixed(2)+'%':'\u2014';
     trows+='<tr style="cursor:pointer" onclick="window.open(\'model-detail.html?model='+s+'\',\'_blank\')">'
       +'<td'+TW(0)+' class="text-right">'+(i+1)+'</td>'

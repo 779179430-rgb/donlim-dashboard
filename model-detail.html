@@ -308,35 +308,37 @@ var modelVis=0, modelBuy=0;
   });
 });
 
-// 聚合该型号 PM 数据
+// 聚合该型号数据（统一取自「商品数据源（生参）」PROD_DAILY：支付p/退款r/件数pc）
 var modelPay=0, modelPieces=0;
 var monthlyPay={}, monthlyRef={}, monthlyPieces={};
 ALL_MONTHS.forEach(function(m){ monthlyPay[m]=0; monthlyRef[m]=0; monthlyPieces[m]=0; });
-
-Object.keys(PM).forEach(function(k){
-  var e=PM[k];
-  if(PID2CODE[e.pid]===MODEL_CODE){
-    modelPay += e.pay;
-    modelPieces += (e.pieces||0);
-    monthlyPay[e.m] += e.pay;
-    monthlyPieces[e.m] += (e.pieces||0);
-  }
+(MODEL_PIDS[MODEL_CODE]||[]).forEach(function(pid){
+  if(!PROD_DAILY[pid]) return;
+  ALL_DATES.forEach(function(d){
+    var pd=PROD_DAILY[pid][d]; if(!pd) return;
+    modelPay += (pd.p||0);
+    modelPieces += (pd.pc||0);
+    var mo=+d.slice(5,7);
+    monthlyPay[mo] += (pd.p||0);
+    monthlyPieces[mo] += (pd.pc||0);
+  });
 });
 
-// 聚合 STORE_DAILY 退款/订单
-var sd=STORE_DAILY[MODEL_CODE]||{};
-var totalRef=0, totalOrd=0, totalSdPieces=0;
+// 聚合退款/支付（统一取自 PROD_DAILY 生参）
+var totalRef=0, totalPay=0, totalPc=0;
 var dailyPay=[], dailyRef=[];
-ALL_DATES.forEach(function(d){
-  if(sd[d]){
-    totalRef += (sd[d].refund||0);
-    totalOrd += (sd[d].orders||0);
-    totalSdPieces += (sd[d].pieces||0);
-    dailyPay.push({d:d, v:sd[d].pay||0});
-    dailyRef.push({d:d, v:sd[d].refund||0});
+(MODEL_PIDS[MODEL_CODE]||[]).forEach(function(pid){
+  if(!PROD_DAILY[pid]) return;
+  ALL_DATES.forEach(function(d){
+    var pd=PROD_DAILY[pid][d]; if(!pd) return;
+    totalRef += (pd.r||0);
+    totalPay += (pd.p||0);
+    totalPc += (pd.pc||0);
+    dailyPay.push({d:d, v:pd.p||0});
+    dailyRef.push({d:d, v:pd.r||0});
     var mo=+d.slice(5,7);
-    monthlyRef[mo] += (sd[d].refund||0);
-  }
+    monthlyRef[mo] += (pd.r||0);
+  });
 });
 
 var netSales = modelPay - totalRef;
@@ -358,9 +360,9 @@ var kpis = [
   { label: '支付买家数', value: fmtInt(modelBuy), sub: '访客→买家转化', color: '#48dbfb' },
   { label: '支付转化率', value: convRateTxt, sub: '支付买家/商品访客', color: '#1dd1a1' },
   { label: '支付件数', value: fmtInt(modelPieces), sub: '客单价 '+fmtWan(avgPrice), color: '#7c5cfc' },
-  { label: '订单数', value: fmtInt(totalOrd), sub: '日均 '+fmtInt(Math.round(totalOrd/ALL_DATES.length)), color: '#feca57' },
+  { label: '客单价', value: fmtWan(modelPay/(modelBuy||1)), sub: '支付金额/买家数', color: '#feca57' },
   { label: '日均销售', value: fmtWan(modelPay/ALL_DATES.length), sub: '共'+ALL_DATES.length+'天', color: '#00d2ff' },
-  { label: '退款件数估算', value: fmtInt(totalSdPieces-modelPieces+totalOrd), sub: '基于订单-件数差', color: '#8395a7' },
+  { label: '笔均件数', value: fmtInt(modelPieces/(modelBuy||1)), sub: '件数/买家数', color: '#8395a7' },
   { label: '数据区间', value: META.start+' ~ '+META.end, sub: '共'+ALL_MONTHS.length+'个月', color: '#8395a7' }
 ];
 var kpiHtml = kpis.map(function(k){
@@ -374,9 +376,9 @@ document.getElementById('kpi-grid').innerHTML = kpiHtml;
 // ============ 维度趋势图（粒度切换 + 指标维度选择）============
 // 维度定义：daily(d) 返回该日数值；type 决定格式化方式
 var trendDims = {
-  pay:    {name:'支付金额',  type:'money', color:'#00d2ff', daily:function(d){ return sd[d] ? (sd[d].pay||0) : 0; }},
-  net:    {name:'扣退后实际',type:'money', color:'#00e396', daily:function(d){ return sd[d] ? ((sd[d].pay||0)-(sd[d].refund||0)) : 0; }},
-  refund: {name:'退款额',    type:'money', color:'#ff6b6b', daily:function(d){ return sd[d] ? (sd[d].refund||0) : 0; }},
+  pay:    {name:'支付金额',  type:'money', color:'#00d2ff', daily:function(d){ var v=0; (MODEL_PIDS[MODEL_CODE]||[]).forEach(function(pid){ if(PROD_DAILY[pid]&&PROD_DAILY[pid][d]) v+=(PROD_DAILY[pid][d].p||0); }); return v; }},
+  net:    {name:'扣退后实际',type:'money', color:'#00e396', daily:function(d){ var v=0; (MODEL_PIDS[MODEL_CODE]||[]).forEach(function(pid){ if(PROD_DAILY[pid]&&PROD_DAILY[pid][d]){ v+=(PROD_DAILY[pid][d].p||0)-(PROD_DAILY[pid][d].r||0); } }); return v; }},
+  refund: {name:'退款额',    type:'money', color:'#ff6b6b', daily:function(d){ var v=0; (MODEL_PIDS[MODEL_CODE]||[]).forEach(function(pid){ if(PROD_DAILY[pid]&&PROD_DAILY[pid][d]) v+=(PROD_DAILY[pid][d].r||0); }); return v; }},
   vis:    {name:'商品访客数',type:'int',   color:'#54a0ff', daily:function(d){ var v=0; (MODEL_PIDS[MODEL_CODE]||[]).forEach(function(pid){ if(PROD_DAILY[pid]&&PROD_DAILY[pid][d]) v+=(PROD_DAILY[pid][d].v||0); }); return v; }},
   buy:    {name:'支付买家数',type:'int',   color:'#48dbfb', daily:function(d){ var b=0; (MODEL_PIDS[MODEL_CODE]||[]).forEach(function(pid){ if(PROD_DAILY[pid]&&PROD_DAILY[pid][d]) b+=(PROD_DAILY[pid][d].b||0); }); return b; }},
   conv:   {name:'支付转化率',type:'pct',   color:'#1dd1a1', daily:function(d){ var v=0,b=0; (MODEL_PIDS[MODEL_CODE]||[]).forEach(function(pid){ if(PROD_DAILY[pid]&&PROD_DAILY[pid][d]){ v+=(PROD_DAILY[pid][d].v||0); b+=(PROD_DAILY[pid][d].b||0);} }); return v>0?b/v:0; }}
