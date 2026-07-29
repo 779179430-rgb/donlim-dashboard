@@ -403,8 +403,7 @@ function renderKPIs(a){
     { label:'支付件数',     value:fmtInt(a.pieces),     sub:'客单价 '+fmtWan(a.ap), color:'#7c5cfc', dim:'pc' },
     { label:'客单价',       value:fmtWan(a.avgPay),     sub:'支付金额/买家数',      color:'#feca57', dim:'avgprice' },
     { label:'日均销售',     value:fmtWan(a.dayAvg),     sub:'共'+a.days+'天',         color:'#00d2ff', dim:'dailyavg' },
-    { label:'笔均件数',     value:fmtInt(a.ppb),        sub:'件数/买家数',           color:'#8395a7', dim:'ppb' },
-    { label:'数据区间',     value:a.dateStart+' ~ '+a.dateEnd, sub:'共'+a.days+'天', color:'#8395a7', dim:'' }
+    { label:'笔均件数',     value:fmtInt(a.ppb),        sub:'件数/买家数',           color:'#8395a7', dim:'ppb' }
   ];
   var html = kpis.map(function(k){
     return '<div class="kpi-card clickable'+(k.dim?'':'"')+'"'+(k.dim?' data-dim="'+k.dim+'"':'')+'>'
