@@ -267,7 +267,7 @@ body {
       <div style="max-height:520px;overflow:auto">
         <table class="data-table" id="top-products-table" style="min-width:960px">
           <thead><tr>
-            <th style="width:3%">#</th><th style="width:14%">型号</th><th class="text-right" style="width:10%">支付金额<br/><small class="syj-hdr">(生意经)</small></th><th class="text-right" style="width:9%">扣退后实际<br/><small class="syj-hdr">(生意经)</small></th><th class="text-right" style="width:7%">退款率<br/><small class="syj-hdr">(生意经)</small></th><th class="text-right" style="width:7%">转化率</th><th class="text-right" style="width:10%">支付件数<br/><small class="syj-hdr">生参 | 生意经(销量/退货)</small></th><th class="text-right" style="width:9%">推广花费<br/><small class="syj-hdr">万相台</small></th><th class="text-right" style="width:8%">推广费率</th><th class="text-right" style="width:8%">扣退后推广费率</th><th style="width:13%"></th>
+            <th style="width:3%">#</th><th style="width:14%">型号</th><th class="text-right" style="width:10%">支付金额<br/><small class="syj-hdr">(生意经)</small></th><th class="text-right" style="width:9%">扣退后实际<br/><small class="syj-hdr">(生意经)</small></th><th class="text-right" style="width:7%">退款率<br/><small class="syj-hdr">(生意经)</small></th><th class="text-right" style="width:7%">转化率</th><th class="text-right" style="width:10%">支付件数<br/><small class="syj-hdr">生参 | 生意经(销量/退货)</small></th><th class="text-right" style="width:9%">站内总花费<br/><small class="syj-hdr">万相台+超级短视频</small></th><th class="text-right" style="width:8%">站内总费率</th><th class="text-right" style="width:9%">扣退后站内推广总费率</th><th style="width:13%"></th>
           </tr></thead>
           <tbody></tbody>
         </table>
@@ -762,14 +762,16 @@ function renderCore(state){
     var syRR=syjTag((syjGross>0&&sr!==undefined)?sr/syjGross:null, function(v){return(v*100).toFixed(1)+'%';});
     // 生意经对比：销售量(q)+退货量(rq) 一并展示，表头已区分生参/生意经(销量/退货)
     var syPcs = (sq!==undefined||srq!==undefined) ? '<span class="syj-cmp">生意经 销'+((sq!==undefined)?fmtInt(sq):'\u2014')+' / 退'+((srq!==undefined)?fmtInt(srq):'\u2014')+'</span>' : '';
-    // 万相台（站内广告）推广花费及费率：按型号聚合 WXT_BY_PID 全周期花费
+    // 站内总花费（万相台 + 超级短视频）按型号聚合，与详情页口径一致
     var wxtSpendForModel=0;
     (MODEL_PIDS[s]||[]).forEach(function(pid){ var w=WXT_BY_PID[String(pid)]; if(w) wxtSpendForModel+=(w.s||0); });
-    var wr = pay ? wxtSpendForModel/pay : 0;
-    var wnr = net ? wxtSpendForModel/net : 0;
-    var wxtSpendTxt = wxtSpendForModel>0 ? fmtWan(wxtSpendForModel) : '\u2014';
-    var wrTxt = wxtSpendForModel>0 ? (wr*100).toFixed(1)+'%' : '\u2014';
-    var wnrTxt = wxtSpendForModel>0 ? (wnr*100).toFixed(1)+'%' : '\u2014';
+    var svSpendForModel = (typeof SV_MODEL!=='undefined' && SV_MODEL[s]) ? (SV_MODEL[s].s||0) : 0;
+    var siteInSpendForModel = wxtSpendForModel + svSpendForModel;
+    var wr = pay ? siteInSpendForModel/pay : 0;
+    var wnr = net ? siteInSpendForModel/net : 0;
+    var wxtSpendTxt = siteInSpendForModel>0 ? fmtWan(siteInSpendForModel) : '\u2014';
+    var wrTxt = siteInSpendForModel>0 ? (wr*100).toFixed(1)+'%' : '\u2014';
+    var wnrTxt = siteInSpendForModel>0 ? (wnr*100).toFixed(1)+'%' : '\u2014';
     trows+='<tr style="cursor:pointer" onclick="window.open(\'model-detail.html?model='+s+'\',\'_blank\')">'
       +'<td'+TW(0)+' class="text-right">'+(i+1)+'</td>'
       +'<td'+TW(1)+'><strong>'+mfn(s)+'</strong></td>'
