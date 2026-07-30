@@ -226,7 +226,7 @@ body {
       <div style="max-height:500px;overflow-y:auto">
         <table class="data-table" id="ad-detail-table">
           <thead><tr>
-            <th style="width:8%">分类</th><th style="width:14%">渠道</th><th class="text-right" style="width:14%">花费</th><th class="text-right" style="width:18%">成交金额</th><th class="text-right" style="width:12%">ROI</th><th class="text-right" style="width:10%">CPC(元)</th><th class="text-right" style="width:12%">加购成本</th>
+            <th style="width:8%">分类</th><th style="width:14%">渠道</th><th class="text-right" style="width:14%">花费</th><th class="text-right" style="width:18%">成交金额</th><th class="text-right" style="width:12%">ROI</th><th class="text-right" style="width:10%">CPC(元)</th><th class="text-right" style="width:12%">加购成本(元/加购)</th>
           </tr></thead>
           <tbody></tbody>
         </table>
@@ -613,7 +613,7 @@ function renderCore(state){
     var COLW=['8%','14%','14%','18%','12%','10%','12%'];
     var W=function(i){return ' style="width:'+COLW[i]+'"';};
     var cpcOf=function(name,spend){ var c=AD_CLICKS[name]; return (spend>0&&c)?(spend/c).toFixed(2):'\u2014'; };
-    var cartCostOf=function(name){ var v=AD_CART_COST[name]; return v>0?fmtWan(v):'\u2014'; };
+    var cartCostOf=function(name,spend){ var n=AD_CART_COST[name]; return (spend>0&&n>0)?(spend/n).toFixed(2):'\u2014'; };
     var trows='';
     adRows.forEach(function(x){
       var roi=x.s?x.r/x.s:0;
@@ -622,40 +622,43 @@ function renderCore(state){
         +'<td class="text-right"'+W(3)+'>'+fmtWan(x.r)+'</td>'
         +'<td class="text-right"'+W(4)+'>'+roi.toFixed(2)+'</td>'
         +'<td class="text-right"'+W(5)+'>'+cpcOf(x.name,x.s)+'</td>'
-        +'<td class="text-right"'+W(6)+' style="color:#feca57">'+cartCostOf(x.name)+'</td></tr>';
+        +'<td class="text-right"'+W(6)+' style="color:#feca57">'+cartCostOf(x.name,x.s)+'</td></tr>';
     });
     // 合计行 CPC：仅对"有点击量"的渠道做加权
     var insiteClicks=AD_CLICKS['关键词推广']+AD_CLICKS['精准人群推广']+AD_CLICKS['货品全站推广']+AD_CLICKS['超级短视频'];
     var insiteClickSpend=kwS+crS+gdS+vdS;
     var insiteCPC=insiteClicks>0?(insiteClickSpend/insiteClicks).toFixed(2):'\u2014';
-    // 站内合计加购成本
-    var insiteCartCost=AD_CART_COST['关键词推广']+AD_CART_COST['精准人群推广']+AD_CART_COST['货品全站推广']+AD_CART_COST['超级短视频']+AD_CART_COST['超级直播'];
+    // 站内合计加购成本（= 总花费 ÷ 加购数量）
+    var insiteCartN=AD_CART_COST['关键词推广']+AD_CART_COST['精准人群推广']+AD_CART_COST['货品全站推广']+AD_CART_COST['超级短视频']+AD_CART_COST['超级直播'];
+    var insiteCartCost=(insiteS>0&&insiteCartN>0)?(insiteS/insiteCartN).toFixed(2):'\u2014';
     trows+='<tr style="background:rgba(0,210,255,.08);font-weight:600"><td colspan="2">站内合计</td>'
       +'<td class="text-right"'+W(2)+'>'+fmtWan(insiteS)+'</td>'
       +'<td class="text-right"'+W(3)+'>'+fmtWan(insiteR)+'</td>'
       +'<td class="text-right"'+W(4)+'>'+(insiteS?insiteR/insiteS:0).toFixed(2)+'</td>'
       +'<td class="text-right"'+W(5)+'>'+insiteCPC+'</td>'
-      +'<td class="text-right"'+W(6)+' style="color:#feca57">'+fmtWan(insiteCartCost)+'</td></tr>';
+      +'<td class="text-right"'+W(6)+' style="color:#feca57">'+insiteCartCost+'</td></tr>';
     var offsiteClicks=AD_CLICKS['PA']+AD_CLICKS['红猫UDS']+AD_CLICKS['抖音UDS']+AD_CLICKS['小红星聚光'];
     var offsiteClickSpend=paS+maS+dyS+stS;
     var offsiteCPC=offsiteClicks>0?(offsiteClickSpend/offsiteClicks).toFixed(2):'\u2014';
-    var offsiteCartCost=AD_CART_COST['PA']+AD_CART_COST['红猫UDS']+AD_CART_COST['抖音UDS']+AD_CART_COST['小红星聚光'];
+    var offsiteCartN=AD_CART_COST['PA']+AD_CART_COST['红猫UDS']+AD_CART_COST['抖音UDS']+AD_CART_COST['小红星聚光'];
+    var offsiteCartCost=(offsiteS>0&&offsiteCartN>0)?(offsiteS/offsiteCartN).toFixed(2):'\u2014';
     trows+='<tr style="background:rgba(255,166,2,.08);font-weight:600"><td colspan="2">站外合计</td>'
       +'<td class="text-right"'+W(2)+'>'+fmtWan(offsiteS)+'</td>'
       +'<td class="text-right"'+W(3)+'>'+fmtWan(offsiteR)+'</td>'
       +'<td class="text-right"'+W(4)+'>'+(offsiteS?offsiteR/offsiteS:0).toFixed(2)+'</td>'
       +'<td class="text-right"'+W(5)+'>'+offsiteCPC+'</td>'
-      +'<td class="text-right"'+W(6)+' style="color:#feca57">'+fmtWan(offsiteCartCost)+'</td></tr>';
+      +'<td class="text-right"'+W(6)+' style="color:#feca57">'+offsiteCartCost+'</td></tr>';
     var totalClicks=insiteClicks+offsiteClicks;
     var totalClickSpend=insiteClickSpend+offsiteClickSpend;
     var totalCPC=totalClicks>0?(totalClickSpend/totalClicks).toFixed(2):'\u2014';
-    var totalCartCost=insiteCartCost+offsiteCartCost;
+    var totalCartN=insiteCartN+offsiteCartN;
+    var totalCartCost=(totalS>0&&totalCartN>0)?(totalS/totalCartN).toFixed(2):'\u2014';
     trows+='<tr style="background:rgba(46,204,113,.12);font-weight:700"><td colspan="2">总计</td>'
       +'<td class="text-right"'+W(2)+'>'+fmtWan(totalS)+'</td>'
       +'<td class="text-right"'+W(3)+'>'+fmtWan(totalR)+'</td>'
       +'<td class="text-right"'+W(4)+'>'+(totalS?totalR/totalS:0).toFixed(2)+'</td>'
       +'<td class="text-right"'+W(5)+'>'+totalCPC+'</td>'
-      +'<td class="text-right"'+W(6)+' style="color:#feca57;font-weight:700">'+fmtWan(totalCartCost)+'</td></tr>';
+      +'<td class="text-right"'+W(6)+' style="color:#feca57;font-weight:700">'+totalCartCost+'</td></tr>';
     tbody.innerHTML=trows;
   }
 
