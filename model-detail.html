@@ -250,23 +250,6 @@ body {
     <div class="chart-container xl" id="chart-trend"></div>
   </div>
 
-  <!-- 商品明细表 -->
-  <div class="chart-panel full-width" style="margin-bottom:24px">
-    <h3>📦 该型号下商品明细 <span style="font-size:12px;color:var(--text-secondary);font-weight:400">（点击商品行查看站内推广明细）</span></h3>
-    <div style="max-height:400px;overflow:auto">
-      <table class="data-table" id="prod-table">
-        <thead><tr>
-          <th style="width:4%">#</th><th style="width:30%">商品名称</th>
-          <th class="text-right" style="width:11%">支付金额</th><th class="text-right" style="width:7%">支付件数</th>
-          <th class="text-right" style="width:11%">商品访客</th><th class="text-right" style="width:10%">支付转化率</th>
-          <th class="text-right" style="width:8%">占比</th>
-          <th class="text-right" style="width:10%">站内花费</th><th class="text-right" style="width:9%">站内费率</th>
-        </tr></thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </div>
-
   <!-- 站内推广明细（万相台按商品ID=主体ID关联；超级短视频为型号级汇总）-->
   <div class="chart-panel full-width" style="margin-bottom:24px">
     <h3>📣 站内推广明细 <span id="wxt-prod-name" style="font-size:12px;color:var(--text-secondary);font-weight:400"></span></h3>
@@ -592,34 +575,10 @@ Object.keys(PM).forEach(function(k){
   }
 });
 prods.sort(function(a,b){return b.pay-a.pay;});
-var PCOLW=['4%','30%','11%','7%','11%','10%','8%','10%','9%'];
-var PW=function(i){return ' style="width:'+PCOLW[i]+'"';};
-function pidAgg(pid){ var v=0,b=0; if(PROD_DAILY[pid]){ ALL_DATES.forEach(function(d){ var pd=PROD_DAILY[pid][d]; if(pd){ v+=(pd.v||0); b+=(pd.b||0);} }); } return {v:v,b:b}; }
-// 站内推广：商品ID(主体ID) → 万相台花费/成交/工具明细（超级短视频为型号级汇总，不在商品行展示）
+// 站内推广：商品ID(主体ID) → 万相台花费/成交/工具明细
 function wxtOf(pid){ return WXT_BY_PID[String(pid)] || null; }
-var ptrows='';
-prods.forEach(function(p,i){
-  var pct=currentAggs&&currentAggs.pay?p.pay/currentAggs.pay:0;
-  var pa=pidAgg(p.pid);
-  var visTxt = pa.v>0 ? fmtInt(pa.v) : '—';
-  var pcr = pa.v>0 ? fmtPct(pa.b/pa.v,2) : '—';
-  var w = wxtOf(p.pid);
-  var siteSpend = w ? fmtWan(w.s) : '—';
-  var siteRate = (w && p.pay>0) ? (w.s/p.pay*100).toFixed(2)+'%' : '—';
-  ptrows+='<tr data-pid="'+p.pid+'"><td'+PW(0)+' class="text-right">'+(i+1)+'</td>'
-    +'<td'+PW(1)+'>'+p.name+'</td>'
-    +'<td'+PW(2)+' class="text-right highlight">'+fmtWan(p.pay)+'</td>'
-    +'<td'+PW(3)+' class="text-right">'+fmtInt(p.pieces)+'</td>'
-    +'<td'+PW(4)+' class="text-right">'+visTxt+'</td>'
-    +'<td'+PW(5)+' class="text-right">'+pcr+'</td>'
-    +'<td'+PW(6)+' class="text-right">'+(pct*100).toFixed(1)+'%</td>'
-    +'<td'+PW(7)+' class="text-right">'+siteSpend+'</td>'
-    +'<td'+PW(8)+' class="text-right">'+siteRate+'</td></tr>';
-});
-var pt=document.querySelector('#prod-table tbody');
-if(pt) pt.innerHTML=ptrows;
 
-// ============ 万相台推广明细（点击商品行联动）============
+// ============ 万相台推广明细（自动展示该型号下首个有投放数据的商品）============
 var wxtTimeDim='month';
 var wxtChartPid=null;
 var wxtChartInst=null;
@@ -927,22 +886,10 @@ document.getElementById('wxt-time-bar').addEventListener('click',function(e){
   wxtTimeDim=btn.dataset.dim;
   if(wxtChartPid) renderWXTChart(wxtChartPid);
 });
-// 点击商品行 → 高亮 + 联动万相台明细
-if(pt){
-  pt.addEventListener('click', function(e){
-    var tr=e.target.closest('tr[data-pid]');
-    if(!tr) return;
-    pt.querySelectorAll('tr').forEach(function(r){ r.classList.remove('active'); });
-    tr.classList.add('active');
-    renderWXT(tr.dataset.pid);
-    var wp=document.getElementById('wxt-detail');
-    if(wp) wp.scrollIntoView({behavior:'smooth', block:'center'});
-  });
-}
-// 默认选中首个有万相台数据的商品
+// 自动展示该型号下首个有万相台投放数据的商品明细
 (function(){
   for(var i=0;i<prods.length;i++){
-    if(wxtOf(prods[i].pid)){ renderWXT(prods[i].pid); var first=pt.querySelector('tr[data-pid="'+prods[i].pid+'"]'); if(first) first.classList.add('active'); break; }
+    if(wxtOf(prods[i].pid)){ renderWXT(prods[i].pid); break; }
   }
 })();
 
