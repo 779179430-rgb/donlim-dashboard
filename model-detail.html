@@ -350,6 +350,7 @@ var SV_METRICS={
 };;
 ;
 ;
+;
 
 
 var PROD_DAILY={
@@ -927,8 +928,8 @@ function renderWXT(pid){
   var totalRoi=totalSpend>0?(totalGmv/totalSpend):0;
 
   function cartCost(spend,cartN){
-    // 加购成本 = 加购数量 ÷ 花费（每元带来的加购数）
-    return cartN>0 ? (cartN/spend).toFixed(3) : '—';
+    // 加购成本 = 总花费 ÷ 加购数量（元/加购）
+    return cartN>0 ? (spend/cartN).toFixed(2) : '—';
   }
   function rowCells(r, roi){
     var cpc = r.clicks>0 ? (r.spend/r.clicks).toFixed(2) : '—';
@@ -953,7 +954,7 @@ function renderWXT(pid){
     +'<table class="data-table"><thead><tr>'
     +'<th style="width:24%">推广工具</th><th class="text-right" style="width:12%">花费</th>'
     +'<th class="text-right" style="width:16%">直接成交金额</th><th class="text-right" style="width:10%">投入产出比</th>'
-    +'<th class="text-right" style="width:11%">CPC(元/点击)</th><th class="text-right" style="width:13%">加购成本(加购数/花费)</th><th class="text-right" style="width:14%">转化成本(元/转化)</th>'
+    +'<th class="text-right" style="width:11%">CPC(元/点击)</th><th class="text-right" style="width:13%">加购成本(元/加购)</th><th class="text-right" style="width:14%">转化成本(元/转化)</th>'
     +'</tr></thead><tbody>';
 
   sceneRows.forEach(function(r){
@@ -984,6 +985,7 @@ function renderWXT(pid){
   box.innerHTML=html;
   renderWXTChart(pid);
 }
+
 
 
 
