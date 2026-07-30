@@ -661,18 +661,21 @@ function renderWXTChart(pid){
   var xLabels, rawData; // rawData: Array<{total, totalG, parts:{sn:{s,g}}, roi}>
   if(isMonth){
     var mMap={};
+    // 预先按月聚合超级短视频（只算一次，不在逐日循环内）
+    var svMonthMap={};
+    Object.keys(svDaily).forEach(function(sd){
+      var m=sd.substring(0,7);
+      if(!svMonthMap[m]) svMonthMap[m]={s:0,g:0};
+      svMonthMap[m].s+=(Number(svDaily[sd].s)||0);
+      svMonthMap[m].g+=(Number(svDaily[sd].g)||0);
+    });
+    
     dates.forEach(function(d){
       var m=d.substring(0,7);
       if(!mMap[m]) mMap[m]={total:0,totalG:0,parts:{}};
       var dd=daily[d]||{s:0,g:0,sc:{}};
       mMap[m].total+=Number(dd.s)||0;
       mMap[m].totalG+=Number(dd.g)||0;
-      // 超级短视频（按月聚合 svDaily）
-      var svMs=0, svMg=0;
-      Object.keys(svDaily).forEach(function(sd){ if(sd.substring(0,7)===m){ svMs+=(Number(svDaily[sd].s)||0); svMg+=(Number(svDaily[sd].g)||0); }});
-      mMap[m].total+=svMs; mMap[m].totalG+=svMg;
-      if(!mMap[m].parts[SV_NAME]) mMap[m].parts[SV_NAME]={s:0,g:0};
-      mMap[m].parts[SV_NAME].s+=svMs; mMap[m].parts[SV_NAME].g+=svMg;
       // 万相台各场景
       Object.keys(dd.sc||{}).forEach(function(sn){
         if(sn===SV_NAME) return;
@@ -680,6 +683,14 @@ function renderWXTChart(pid){
         mMap[m].parts[sn].s+=(Number(dd.sc[sn].s)||0);
         mMap[m].parts[sn].g+=(Number(dd.sc[sn].g)||0);
       });
+    });
+    // 超级短视频按月一次性加入（每个月份只加一次）
+    Object.keys(svMonthMap).forEach(function(m){
+      if(!mMap[m]) mMap[m]={total:0,totalG:0,parts:{}};
+      var sm=svMonthMap[m];
+      mMap[m].total+=sm.s; mMap[m].totalG+=sm.g;
+      if(!mMap[m].parts[SV_NAME]) mMap[m].parts[SV_NAME]={s:0,g:0};
+      mMap[m].parts[SV_NAME].s=sm.s; mMap[m].parts[SV_NAME].g=sm.g;
     });
     xLabels=Object.keys(mMap).sort();
     rawData=xLabels.map(function(m){ var r=mMap[m]; r.roi=r.total?r.totalG/r.total:0; return r; });
