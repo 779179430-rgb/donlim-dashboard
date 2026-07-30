@@ -352,6 +352,7 @@ var SV_METRICS={
 ;
 ;
 ;
+;
 
 
 var PROD_DAILY={
@@ -944,8 +945,6 @@ function renderWXT(pid){
       +'<td class="text-right">'+cv+'</td>';
   }
   function nameCell(r){
-    if(r.offsite) return '<td><span style="color:#feca57">●</span> '+r.name+'</td>';
-    if(r.sv) return '<td><span style="color:#ffa502">●</span> '+r.name+'</td>';
     return '<td>'+r.name+'</td>';
   }
 
@@ -958,6 +957,8 @@ function renderWXT(pid){
     +'<th class="text-right" style="width:11%">CPC(元/点击)</th><th class="text-right" style="width:13%">加购成本(元/加购)</th><th class="text-right" style="width:14%">转化成本(元/转化)</th>'
     +'</tr></thead><tbody>';
 
+  // 站内工具按花费从高到低排序
+  sceneRows.sort(function(a,b){ return b.spend - a.spend; });
   sceneRows.forEach(function(r){
     html+='<tr>'+nameCell(r)+rowCells(r, r.spend>0?(r.gmv/r.spend):0)+'</tr>';
   });
@@ -969,7 +970,8 @@ function renderWXT(pid){
     +'<td class="text-right">'+(inC>0?(inS/inC).toFixed(2):'—')+'</td>'
     +'<td class="text-right">'+cartCost(inS,inCa)+'</td>'
     +'<td class="text-right">'+(inCo>0?(inS/inCo).toFixed(2):'—')+'</td></tr>';
-  // 站外工具行
+  // 站外工具按花费从高到低排序
+  osA.rows.sort(function(a,b){ return b.spend - a.spend; });
   osA.rows.forEach(function(r){
     html+='<tr style="background:rgba(255,166,2,.04)">'+nameCell(r)+rowCells(r, r.spend>0?(r.gmv/r.spend):0)+'</tr>';
   });
@@ -986,6 +988,7 @@ function renderWXT(pid){
   box.innerHTML=html;
   renderWXTChart(pid);
 }
+
 
 
 
