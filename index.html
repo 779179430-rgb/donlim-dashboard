@@ -267,7 +267,7 @@ body {
       <div style="max-height:520px;overflow:auto">
         <table class="data-table" id="top-products-table" style="min-width:960px">
           <thead><tr>
-            <th style="width:3%">#</th><th style="width:14%">型号</th><th class="text-right" style="width:10%">支付金额<br/><small class="syj-hdr">(生意经)</small></th><th class="text-right" style="width:9%">扣退后实际<br/><small class="syj-hdr">(生意经)</small></th><th class="text-right" style="width:7%">退款率<br/><small class="syj-hdr">(生意经)</small></th><th class="text-right" style="width:7%">转化率</th><th class="text-right" style="width:10%">支付件数<br/><small class="syj-hdr">生参 | 生意经(销量/退货)</small></th><th class="text-right" style="width:9%">站内总花费<br/><small class="syj-hdr">万相台+超级短视频</small></th><th class="text-right" style="width:8%">站内总费率</th><th class="text-right" style="width:8%">扣退后站内推广总费率</th><th class="text-right" style="width:8%">成交ROI</th><th style="width:10%"></th>
+            <th style="width:3%">#</th><th style="width:13%">型号</th><th class="text-right" style="width:9%">支付金额<br/><small class="syj-hdr">(生意经)</small></th><th class="text-right" style="width:8%">扣退后实际<br/><small class="syj-hdr">(生意经)</small></th><th class="text-right" style="width:6%">退款率<br/><small class="syj-hdr">(生意经)</small></th><th class="text-right" style="width:6%">转化率</th><th class="text-right" style="width:9%">支付件数<br/><small class="syj-hdr">生参 | 生意经(销量/退货)</small></th><th class="text-right" style="width:9%">站内总花费<br/><small class="syj-hdr">万相台+超级短视频</small></th><th class="text-right" style="width:7%">站内总费率</th><th class="text-right" style="width:9%">扣退后站内推广总费率</th><th class="text-right" style="width:8%">成交ROI</th><th style="width:8%"></th>
           </tr></thead>
           <tbody></tbody>
         </table>
@@ -718,7 +718,7 @@ function renderCore(state){
 
   // --- 各型号销售排行表（统一生参口径 + 生意经对比）---
   var ranked=sids.slice().sort(function(a,b){return modelPay[b]-modelPay[a];});
-  var TCOLW=['3%','14%','10%','9%','7%','7%','10%','9%','8%','8%','13%'];
+  var TCOLW=['3%','13%','9%','8%','6%','6%','9%','9%','7%','9%','8%','8%'];
   var TW=function(i){return ' style="width:'+TCOLW[i]+'"';};
   function syjTag(val, fmtFn){ if(val===null||val===undefined) return ''; return '<span class="syj-cmp">'+fmtFn(val)+'</span>'; }
   var trows='';
