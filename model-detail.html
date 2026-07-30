@@ -711,6 +711,12 @@ function renderWXTChart(pid){
     });
   }
 
+  // 确保每个 rawData 行都包含全部场景的 parts（缺失补 0），避免稀疏场景
+  // （部分场景仅部分日期有投放）导致读取 row.parts[sn] 为 undefined 而崩溃
+  rawData.forEach(function(row){
+    sNames.forEach(function(sn){ if(!row.parts[sn]) row.parts[sn]={s:0,g:0}; });
+  });
+
   // build echarts series data — explicitly coerce to numbers
   var seriesList=sNames.map(function(sn,i){
     var isSV=(sn===SV_NAME);
@@ -908,15 +914,8 @@ function renderWXT(pid){
     +'<th class="text-right" style="width:20%">直接成交金额</th><th class="text-right" style="width:20%">投入产出比</th>'
     +'</tr></thead><tbody>'+rows+total+'</tbody></table>';
 
-  // 同步全局粒度到万相台时间维度
-  var newDim = (typeof filterGran!=='undefined' && filterGran==='month') ? 'month' : 'day';
-  if(wxtTimeDim!==newDim && wxtTimeDim!=='total'){
-    wxtTimeDim=newDim;
-    // update button active state
-    document.querySelectorAll('.wxt-time-btn').forEach(function(b){
-      b.classList.toggle('active', b.dataset.dim===newDim);
-    });
-  }
+  // 注意：不再强制同步 filterGran 到 wxtTimeDim，尊重用户手动选择的时间维度
+  // （初始值 wxtTimeDim='day' 在声明处已设置；用户点击按钮时由事件处理器更新）
 
   renderWXTChart(pid);
 }
