@@ -399,7 +399,7 @@ function recomputeAll(){
   renderKPIs(aggs);
   renderTrend();
   updateFilterInfo(aggs);
-  if(wxtChartPid) renderWXTChart(wxtChartPid);
+  if(wxtChartPid) renderWXT(wxtChartPid); // 表格+图表都按筛选区间重算
 }
 
 function updateFilterInfo(aggs){
@@ -714,19 +714,51 @@ function renderWXT(pid){
   wxtChartPid=pid;
   var box=document.getElementById('wxt-detail');
   var nameEl=document.getElementById('wxt-prod-name');
-  var w=wxtOf(pid);
+  var w=wxtOf(pid); // 全周期数据（用于 fallback）
   if(!box) return;
-  if(!w){
-    nameEl.textContent='';
-    box.innerHTML='<div class="wxt-summary">该商品在万相台无投放数据（商品ID：'+pid+'）</div>';
-    document.getElementById('wxt-chart').style.display='none';
+
+  // 获取筛选后的日期范围
+  var fdates=(typeof getFilteredDates==='function') ? getFilteredDates() : null;
+  var daily=WXT_DAILY[String(pid)];
+
+  if(!daily || !fdates || !fdates.length){
+    // 无逐日数据或无筛选日期，回退到全周期
+    if(!w){
+      nameEl.textContent='';
+      box.innerHTML='<div class="wxt-summary">该商品在万相台无投放数据（商品ID：'+pid+'）</div>';
+      document.getElementById('wxt-chart').style.display='none';
+      return;
+    }
+    renderWXTTable(pid, w, w.sc, false);
     return;
   }
-  var roi = w.s>0 ? (w.g/w.s) : 0;
+
+  // 从 WXT_DAILY 按筛选区间聚合
+  var fd=fdates.filter(function(d){ return daily[d]!=null; });
+  var fSpend=0, fGmv=0;
+  var fScenes={};
+  fd.forEach(function(d){
+    var dd=daily[d];
+    fSpend += dd.s||0;
+    fGmv  += dd.g||0;
+    if(dd.sc){ Object.keys(dd.sc).forEach(function(sn){
+      if(!fScenes[sn]) fScenes[sn]={s:0,g:0};
+      fScenes[sn].s += dd.sc[sn].s||0;
+      fScenes[sn].g += dd.sc[sn].g||0;
+    });}
+  });
+
+  // 构建展示数据：优先用筛选区间，若区间内无数据则回退全周期
+  var useFiltered = fd.length > 0 && fSpend > 0;
+  var dispSpend = useFiltered ? fSpend : w.s;
+  var dispGmv   = useFiltered ? fGmv : w.g;
+  var dispSc    = useFiltered ? fScenes : (w?w.sc:{});
+  var roi = dispSpend>0 ? (dispGmv/dispSpend) : 0;
+
   nameEl.textContent='（商品ID '+pid+'）';
   var rows='';
-  Object.keys(w.sc).forEach(function(scn){
-    var s=w.sc[scn];
+  Object.keys(dispSc).forEach(function(scn){
+    var s=dispSc[scn];
     var r = s.s>0 ? (s.g/s.s) : 0;
     rows+='<tr><td style="width:40%">'+scn+'</td>'
       +'<td class="text-right" style="width:20%">'+fmtWan(s.s)+'</td>'
@@ -734,14 +766,30 @@ function renderWXT(pid){
       +'<td class="text-right" style="width:20%">'+ (s.s>0? r.toFixed(2) : '—') +'</td></tr>';
   });
   var total='<tr style="font-weight:700;border-top:1px solid var(--border)"><td>合计</td>'
-    +'<td class="text-right">'+fmtWan(w.s)+'</td>'
-    +'<td class="text-right">'+fmtWan(w.g)+'</td>'
-    +'<td class="text-right">'+ (w.s>0? roi.toFixed(2) : '—') +'</td></tr>';
-  box.innerHTML='<div class="wxt-summary">总花费 <b>'+fmtWan(w.s)+'</b> · 总成交 <b>'+fmtWan(w.g)+'</b> · 投入产出比 <b>'+(w.s>0?roi.toFixed(2):'—')+'</b></div>'
+    +'<td class="text-right">'+fmtWan(dispSpend)+'</td>'
+    +'<td class="text-right">'+fmtWan(dispGmv)+'</td>'
+    +'<td class="text-right">'+ (dispSpend>0? roi.toFixed(2) : '—') +'</td></tr>';
+
+  var rangeLabel = useFiltered ?
+    ('当前区间 · '+fd.length+'天 ('+(fd[0]||'')+' ~ '+((fd[fd.length-1])||'')+')') :
+    '全周期（区间内无投放数据）';
+
+  box.innerHTML='<div class="wxt-summary">总花费 <b>'+fmtWan(dispSpend)+'</b> · 总成交 <b>'+fmtWan(dispGmv)+'</b> · 投入产出比 <b>'+(dispSpend>0?roi.toFixed(2):'—')+'</b><span style="color:#5b6b7b;font-weight:400;margin-left:8px">('+rangeLabel+')</span></div>'
     +'<table class="data-table"><thead><tr>'
     +'<th style="width:40%">推广工具</th><th class="text-right" style="width:20%">花费</th>'
     +'<th class="text-right" style="width:20%">总成交金额</th><th class="text-right" style="width:20%">投入产出比</th>'
     +'</tr></thead><tbody>'+rows+total+'</tbody></table>';
+
+  // 同步全局粒度到万相台时间维度
+  var newDim = (typeof filterGran!=='undefined' && filterGran==='month') ? 'month' : 'day';
+  if(wxtTimeDim!==newDim && wxtTimeDim!=='total'){
+    wxtTimeDim=newDim;
+    // update button active state
+    document.querySelectorAll('.wxt-time-btn').forEach(function(b){
+      b.classList.toggle('active', b.dataset.dim===newDim);
+    });
+  }
+
   renderWXTChart(pid);
 }
 // 万相台时间维度切换
