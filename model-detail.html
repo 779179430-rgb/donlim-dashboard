@@ -464,8 +464,8 @@ var trendDims = {
   pc:     {name:'支付件数',  type:'int',   color:'#7c5cfc', daily:function(d){ var v=0; (MODEL_PIDS[MODEL_CODE]||[]).forEach(function(pid){ if(PROD_DAILY[pid]&&PROD_DAILY[pid][d]) v+=(PROD_DAILY[pid][d].pc||0); }); return v; }},
   avgprice:{name:'客单价',    type:'money', color:'#feca57', daily:function(d){ var p=0,b=0; (MODEL_PIDS[MODEL_CODE]||[]).forEach(function(pid){ if(PROD_DAILY[pid]&&PROD_DAILY[pid][d]){ p+=(PROD_DAILY[pid][d].p||0); b+=(PROD_DAILY[pid][d].b||0);} }); return b?p/b:0; }},
   wxtSpend:{name:'推广花费', type:'money', color:'#f368e0', daily:function(d){ var s=0; (MODEL_PIDS[MODEL_CODE]||[]).forEach(function(pid){ var wd=WXT_DAILY[String(pid)]; if(wd&&wd[d]) s+=wd[d].s||0; }); return s; }},
-  wr:     {name:'推广费率', type:'pct',   color:'#ff9ff3', daily:function(d){ var s=0,p=0; (MODEL_PIDS[MODEL_CODE]||[]).forEach(function(pid){ var wd=WXT_DAILY[String(pid)]; if(wd&&wd[d]) s+=wd[d].s||0; if(PROD_DAILY[pid]&&PROD_DAILY[pid][d]) p+=PROD_DAILY[pid][d].p||0; }); return p?s/p*100:0; }},
-  wnr:    {name:'扣退后推广费率',type:'pct',color:'#feca57', daily:function(d){ var s=0,n=0; (MODEL_PIDS[MODEL_CODE]||[]).forEach(function(pid){ var wd=WXT_DAILY[String(pid)]; if(wd&&wd[d]) s+=wd[d].s||0; if(PROD_DAILY[pid]&&PROD_DAILY[pid][d]) n+=(PROD_DAILY[pid][d].p||0)-(PROD_DAILY[pid][d].r||0); }); return n?s/n*100:0; }}
+  wr:     {name:'推广费率', type:'pct',   color:'#ff9ff3', daily:function(d){ var s=0,p=0; (MODEL_PIDS[MODEL_CODE]||[]).forEach(function(pid){ var wd=WXT_DAILY[String(pid)]; if(wd&&wd[d]) s+=wd[d].s||0; if(PROD_DAILY[pid]&&PROD_DAILY[pid][d]) p+=PROD_DAILY[pid][d].p||0; }); return p?s/p:0; }},
+  wnr:    {name:'扣退后推广费率',type:'pct',color:'#feca57', daily:function(d){ var s=0,n=0; (MODEL_PIDS[MODEL_CODE]||[]).forEach(function(pid){ var wd=WXT_DAILY[String(pid)]; if(wd&&wd[d]) s+=wd[d].s||0; if(PROD_DAILY[pid]&&PROD_DAILY[pid][d]) n+=(PROD_DAILY[pid][d].p||0)-(PROD_DAILY[pid][d].r||0); }); return n?s/n:0; }}
 };
 // ============ 趋势图粒度/维度独立控制（保留在趋势区域内）============
 var trendGran='month', trendDim='pay';
