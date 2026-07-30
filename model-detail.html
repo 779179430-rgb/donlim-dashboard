@@ -352,6 +352,7 @@ var ALL_MONTHS = [1,2,3,4,5,6,7];
 var currentAggs = null; // 全局当前聚合结果，供商品明细表等引用
 function computeAggregates(dates){
   var vis=0, buy=0, pay=0, pieces=0, ref=0;
+  var wxtSpend=0, wxtGmv=0;
   var pids = MODEL_PIDS[MODEL_CODE]||[];
   pids.forEach(function(pid){
     if(!PROD_DAILY[pid]) return;
@@ -360,6 +361,12 @@ function computeAggregates(dates){
       vis += (pd.v||0); buy += (pd.b||0);
       pay += (pd.p||0); pieces += (pd.pc||0); ref += (pd.r||0);
     });
+    // 万相台推广花费（按商品ID聚合）
+    var wd=WXT_DAILY[String(pid)];
+    if(wd){ dates.forEach(function(d){
+      var dd=wd[d]; if(!dd) return;
+      wxtSpend += dd.s||0; wxtGmv += dd.g||0;
+    });}
   });
   var net = pay - ref;
   var rr = pay ? ref/pay : 0;
@@ -367,10 +374,13 @@ function computeAggregates(dates){
   var ap = pieces ? pay/pieces : 0;
   var avgPay = buy ? pay/buy : 0;
   var ppb = buy ? pieces/buy : 0;
+  var wr = pay ? wxtSpend/pay*100 : 0;      // 推广费率
+  var wnr = net ? wxtSpend/net*100 : 0;     // 扣退后推广费率
   return {
     pay:pay, net:net, ref:ref, rr:rr,
     vis:vis, buy:buy, cr:cr,
     pieces:pieces, ap:ap, avgPay:avgPay, ppb:ppb,
+    wxtSpend:wxtSpend, wxtGmv:wxtGmv, wr:wr, wnr:wnr,
     dayAvg: dates.length ? pay/dates.length : 0,
     days: dates.length,
     dateStart: dates[0] || META.start,
@@ -420,6 +430,9 @@ function renderKPIs(a){
   var kpis = [
     { label:'支付金额',     value:fmtWan(a.pay),      sub:'PM完整口径 · 日均 '+fmtWan(a.dayAvg), color:'#00d2ff', dim:'pay' },
     { label:'扣退后实际',   value:fmtWan(a.net),       sub:'退款 '+fmtWan(a.ref), color:'#00e396', dim:'net' },
+    { label:'推广花费',     value:fmtWan(a.wxtSpend),  sub:'万相台全工具合计',       color:'#f368e0' },
+    { label:'推广费率',     value:a.wr>0?fmtPct(a.wr/100,2):'—', sub:'推广花费/支付金额',     color:'#ff9ff3' },
+    { label:'扣退后推广费率',value:a.wnr>0?fmtPct(a.wnr/100,2):'—',sub:'推广花费/扣退后实际', color:'#feca57' },
     { label:'退款率',       value:fmtPct(a.rr,1),      sub:'退款额 '+fmtWan(a.ref),color:a.rr>0.4?'#ff6b6b':'#ffa502', dim:'refund' },
     { label:'商品访客数',   value:fmtInt(a.vis),        sub:'支付买家 '+fmtInt(a.buy),color:'#54a0ff', dim:'vis' },
     { label:'支付买家数',   value:fmtInt(a.buy),        sub:'访客→买家转化',        color:'#48dbfb', dim:'buy' },
