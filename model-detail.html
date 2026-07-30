@@ -280,29 +280,75 @@ var WXT_DAILY={"685451605867": {"2026-01-01": {"s": 149.37, "g": 0.0, "sc": {"�
   // PA: 消耗/点击数/引流电商订单GMV  |  红猫UDS: 消费/点击量/GMV(7日)
   // 抖音UDS: 消耗/点击数/引流电商订单GMV  |  小红星聚光: 投流总消费/点击量/任务商品成交
   var OFFSITE_BY_MODEL={
-    "6906":{
-      "PA":{"spend":464000,"clicks":91661,"gmv_ec":3411000},
-      "红猫UDS":{"spend":160538,"clicks":80165,"gmv":619461},
-      "小红星聚光":{"spend":27159,"clicks":18256,"gmv_task":78339}
-    },
-    "7901":{
-      "PA":{"spend":87200,"clicks":18096,"gmv_ec":400903},
-      "红猫UDS":{"spend":557751,"clicks":191708,"gmv":2536854},
-      "抖音UDS":{"spend":37188,"clicks":6153,"gmv_ec":84944},
-      "小红星聚光":{"spend":340355,"clicks":224336,"gmv_task":5513119}
-    },
-    "7902":{
-      "PA":{"spend":3653,"clicks":521,"gmv_ec":7919},
-      "红猫UDS":{"spend":78066,"clicks":40199,"gmv":116906},
-      "小红星聚光":{"spend":145242,"clicks":93463,"gmv_task":824340}
-    },
-    "1352":{
-      "红猫UDS":{"spend":15214,"clicks":15037,"gmv":15077}
-    },
-    "9009":{
-      "小红星聚光":{"spend":16354,"clicks":37403,"gmv_task":123398}
-    }
-  };
+"6906":{"PA":{"spend":464000,"clicks":91661,"gmv_ec":3411000,"cart":15742,"conv":2583},"小红星聚光":{"spend":27159,"clicks":18256,"gmv_task":78339,"cart":6029,"conv":27159}},
+"7901":{"PA":{"spend":87200,"clicks":18096,"gmv_ec":400903,"cart":3371,"conv":248},"抖音UDS":{"spend":37188,"clicks":6153,"gmv_ec":84944,"cart":4767,"conv":34},"小红星聚光":{"spend":340355,"clicks":224336,"gmv_task":5513119,"cart":3762,"conv":296605}},
+"7902":{"PA":{"spend":3653,"clicks":521,"gmv_ec":7919,"cart":251,"conv":11},"小红星聚光":{"spend":145242,"clicks":93463,"gmv_task":824340,"cart":2315,"conv":141267}},
+"9009":{"小红星聚光":{"spend":16354,"clicks":37403,"gmv_task":123398,"cart":1178,"conv":16354}}
+};
+
+var WXT_METRICS={
+"685451605867":{"关键词推广":{"spend":18802,"clicks":35029,"cart":1479,"conv":167},"人群推广":{"spend":4796,"clicks":24832,"cart":423,"conv":15}},
+"1000447457821":{"关键词推广":{"spend":212734,"clicks":67352,"cart":8853,"conv":1882},"人群推广":{"spend":77406,"clicks":54534,"cart":6686,"conv":1057},"货品全站推广":{"spend":11951,"clicks":7843,"cart":233,"conv":117}},
+"594417980776":{"关键词推广":{"spend":885,"clicks":478,"cart":121,"conv":29}},
+"705784153031":{"关键词推广":{"spend":234756,"clicks":92007,"cart":12891,"conv":3535},"人群推广":{"spend":59091,"clicks":40268,"cart":4954,"conv":941},"货品全站推广":{"spend":49051,"clicks":24110,"cart":1742,"conv":1194}},
+"781304398878":{"关键词推广":{"spend":134652,"clicks":38889,"cart":14199,"conv":474},"人群推广":{"spend":52481,"clicks":74162,"cart":4175,"conv":413},"货品全站推广":{"spend":23479,"clicks":15874,"cart":1738,"conv":138}},
+"587916526954":{"关键词推广":{"spend":47943,"clicks":31635,"cart":2289,"conv":630},"货品全站推广":{"spend":38922,"clicks":95050,"cart":506,"conv":1049}},
+"800783310698":{"关键词推广":{"spend":58398,"clicks":75465,"cart":3046,"conv":184},"人群推广":{"spend":44563,"clicks":50338,"cart":8031,"conv":216},"货品全站推广":{"spend":19396,"clicks":8728,"cart":824,"conv":164}},
+"838981817958":{"人群推广":{"spend":297062,"clicks":219306,"cart":25158,"conv":1753},"货品全站推广":{"spend":151489,"clicks":53298,"cart":6368,"conv":557},"关键词推广":{"spend":480502,"clicks":156004,"cart":29138,"conv":1642}},
+"674178515519":{"关键词推广":{"spend":231317,"clicks":130405,"cart":14795,"conv":664},"人群推广":{"spend":222244,"clicks":126822,"cart":21140,"conv":1274},"货品全站推广":{"spend":21420,"clicks":9770,"cart":653,"conv":104}},
+"700251113311":{"货品全站推广":{"spend":183744,"clicks":165669,"cart":1843,"conv":3406},"关键词推广":{"spend":362955,"clicks":295207,"cart":9635,"conv":4026},"人群推广":{"spend":96576,"clicks":79670,"cart":4258,"conv":1933}},
+"992523484907":{"人群推广":{"spend":1063,"clicks":3498,"cart":241,"conv":3},"关键词推广":{"spend":0,"clicks":0,"cart":0,"conv":0}},
+"718104088075":{"货品全站推广":{"spend":53422,"clicks":28670,"cart":2479,"conv":638},"关键词推广":{"spend":2182,"clicks":434,"cart":515,"conv":11}},
+"831056753185":{"人群推广":{"spend":26255,"clicks":19440,"cart":5621,"conv":166},"关键词推广":{"spend":25039,"clicks":9422,"cart":3888,"conv":109}},
+"800802957697":{"关键词推广":{"spend":2068,"clicks":1591,"cart":185,"conv":5}},
+"756656262858":{"关键词推广":{"spend":2612,"clicks":922,"cart":363,"conv":15}},
+"905517647975":{"关键词推广":{"spend":2672,"clicks":593,"cart":350,"conv":16},"货品全站推广":{"spend":20563,"clicks":7665,"cart":1370,"conv":148}},
+"959096699736":{"关键词推广":{"spend":10859,"clicks":11677,"cart":3421,"conv":15}},
+"952648711254":{"关键词推广":{"spend":1551,"clicks":3063,"cart":163,"conv":13}},
+"802444277863":{"关键词推广":{"spend":14809,"clicks":7943,"cart":5883,"conv":61}},
+"1033672604682":{"人群推广":{"spend":10880,"clicks":13583,"cart":2191,"conv":51},"关键词推广":{"spend":766,"clicks":2113,"cart":224,"conv":1}},
+"1035589975567":{"关键词推广":{"spend":32558,"clicks":19687,"cart":2215,"conv":160}},
+"905073568582":{"关键词推广":{"spend":766,"clicks":657,"cart":242,"conv":0}},
+"1055376369519":{"关键词推广":{"spend":15780,"clicks":4913,"cart":1277,"conv":51}},
+"1055886782689":{"关键词推广":{"spend":0,"clicks":1,"cart":0,"conv":0}},
+"1047253510708":{"关键词推广":{"spend":0,"clicks":0,"cart":0,"conv":0}},
+"1015301326053":{"关键词推广":{"spend":0,"clicks":0,"cart":0,"conv":0}},
+"1009538714264":{"关键词推广":{"spend":0,"clicks":5,"cart":0,"conv":0}},
+"1004555911766":{"关键词推广":{"spend":0,"clicks":0,"cart":0,"conv":0}},
+"990053413228":{"关键词推广":{"spend":0,"clicks":0,"cart":0,"conv":0}},
+"983610017001":{"关键词推广":{"spend":0,"clicks":0,"cart":0,"conv":0}},
+"955316241060":{"关键词推广":{"spend":0,"clicks":0,"cart":0,"conv":0}},
+"908927758588":{"关键词推广":{"spend":0,"clicks":0,"cart":0,"conv":0}},
+"876079772020":{"关键词推广":{"spend":0,"clicks":0,"cart":0,"conv":0}},
+"855168057812":{"关键词推广":{"spend":0,"clicks":1,"cart":0,"conv":0}},
+"850391599766":{"关键词推广":{"spend":2,"clicks":14,"cart":2,"conv":0}},
+"842621540107":{"关键词推广":{"spend":0,"clicks":0,"cart":0,"conv":0}},
+"728737680882":{"关键词推广":{"spend":0,"clicks":2,"cart":0,"conv":0}},
+"706582475671":{"关键词推广":{"spend":0,"clicks":0,"cart":0,"conv":0}},
+"687103502862":{"关键词推广":{"spend":0,"clicks":3,"cart":0,"conv":0}},
+"681184243160":{"关键词推广":{"spend":0,"clicks":0,"cart":0,"conv":0}},
+"676218821957":{"关键词推广":{"spend":0,"clicks":0,"cart":0,"conv":0}},
+"669397684873":{"关键词推广":{"spend":0,"clicks":0,"cart":0,"conv":0}},
+"650981634265":{"关键词推广":{"spend":0,"clicks":0,"cart":0,"conv":0}},
+"642044346002":{"关键词推广":{"spend":0,"clicks":0,"cart":0,"conv":0}},
+"640227619565":{"关键词推广":{"spend":0,"clicks":0,"cart":0,"conv":0}},
+"618536379874":{"关键词推广":{"spend":0,"clicks":3,"cart":0,"conv":0}}
+};
+
+var SV_METRICS={
+"1326":{"spend":90018,"clicks":91566,"cart":5592,"conv":2131},
+"1349":{"spend":59542,"clicks":53247,"cart":5227,"conv":444},
+"1352":{"spend":40948,"clicks":38902,"cart":3083,"conv":370},
+"3901":{"spend":12278,"clicks":37607,"cart":425,"conv":106},
+"4705":{"spend":125249,"clicks":335970,"cart":3191,"conv":2765},
+"5028":{"spend":1060,"clicks":2133,"cart":94,"conv":1},
+"6906":{"spend":95712,"clicks":119190,"cart":6577,"conv":486},
+"7006":{"spend":22828,"clicks":14459,"cart":2645,"conv":197},
+"7901":{"spend":161765,"clicks":522798,"cart":8043,"conv":1060},
+"7902":{"spend":73798,"clicks":35991,"cart":3013,"conv":1443},
+"9009":{"spend":6874,"clicks":21833,"cart":360,"conv":24}
+};;
+
 
 var PROD_DAILY={
   "1000447457821":{"2026-01-01":{v:3041,b:42,p:17538,r:5518,pc:42},"2026-01-02":{v:3197,b:62,p:27076,r:13236,pc:64},"2026-01-03":{v:2847,b:57,p:26594,r:12149,pc:66},"2026-01-04":{v:3916,b:78,p:32899,r:13658,pc:81},"2026-01-05":{v:3804,b:63,p:27696,r:7762,pc:64},"2026-01-06":{v:5927,b:57,p:25420,r:12715,pc:60},"2026-01-07":{v:5018,b:57,p:22583,r:9957,pc:57},"2026-01-08":{v:4232,b:65,p:27410,r:13011,pc:70},"2026-01-09":{v:5477,b:85,p:35951,r:8641.37,pc:89},"2026-01-10":{v:3664,b:76,p:34618,r:12632,pc:82},"2026-01-11":{v:3836,b:113,p:50922,r:14031,pc:118},"2026-01-12":{v:3880,b:60,p:28753,r:9817.93,pc:67},"2026-01-13":{v:3057,b:84,p:39587,r:17551,pc:93},"2026-01-14":{v:4283,b:73,p:31686,r:8329.8,pc:74},"2026-01-15":{v:5618,b:82,p:37433,r:10057,pc:87},"2026-01-16":{v:4695,b:98,p:44456,r:18050.8,pc:104},"2026-01-17":{v:5657,b:114,p:52596,r:19714,pc:124},"2026-01-18":{v:8153,b:147,p:65725,r:18038,pc:155},"2026-01-19":{v:8127,b:127,p:57106,r:25218,pc:134},"2026-01-20":{v:5834,b:118,p:51520,r:18658.9,pc:120},"2026-01-21":{v:5208,b:128,p:57405,r:21489.9,pc:135},"2026-01-22":{v:6740,b:84,p:37792,r:16118.9,pc:88},"2026-01-23":{v:4364,b:107,p:49664,r:24221,pc:116},"2026-01-24":{v:5136,b:125,p:58384,r:25562.3,pc:136},"2026-01-25":{v:6698,b:166,p:74545,r:30664,pc:175},"2026-01-26":{v:8097,b:151,p:66844,r:29380.2,pc:156},"2026-01-27":{v:8871,b:186,p:87875,r:43862.5,pc:205},"2026-01-28":{v:7054,b:160,p:73030,r:46449.3,pc:170},"2026-01-29":{v:8931,b:137,p:61936,r:26445.1,pc:144},"2026-01-30":{v:7331,b:133,p:62773,r:42186.7,pc:147},"2026-01-31":{v:8457,b:172,p:80812,r:40490,pc:188},"2026-02-01":{v:9314,b:194,p:92543,r:53163.8,pc:217},"2026-02-02":{v:8522,b:177,p:82327,r:41870,pc:193},"2026-02-03":{v:7577,b:155,p:69797,r:43664.5,pc:163},"2026-02-04":{v:9199,b:130,p:58264,r:41514,pc:136},"2026-02-05":{v:6048,b:124,p:58025,r:35912.2,pc:135},"2026-02-06":{v:6545,b:143,p:63372,r:34816.2,pc:148},"2026-02-07":{v:8278,b:135,p:61018,r:36591.9,pc:142},"2026-02-08":{v:6223,b:160,p:73469,r:52827.9,pc:171},"2026-02-09":{v:8073,b:146,p:70996,r:49450,pc:164},"2026-02-10":{v:5164,b:106,p:49885,r:36992.6,pc:115},"2026-02-11":{v:5289,b:72,p:32924,r:21098,pc:76},"2026-02-12":{v:3259,b:22,p:9258,r:5338.13,pc:22},"2026-02-13":{v:6257,b:20,p:10575,r:9827,pc:25},"2026-02-14":{v:4720,b:11,p:4749,r:7542,pc:11},"2026-02-15":{v:4016,b:18,p:8021,r:9859.76,pc:19},"2026-02-16":{v:3176,b:11,p:4789,r:6617.45,pc:11},"2026-02-17":{v:3529,b:7,p:3073,r:2590.52,pc:7},"2026-02-18":{v:4472,b:5,p:2075,r:11887,pc:5},"2026-02-19":{v:5418,b:14,p:5986,r:1756,pc:14},"2026-02-20":{v:3955,b:7,p:3033,r:405.45,pc:7},"2026-02-21":{v:3305,b:3,p:1756,r:1777.63,pc:4},"2026-02-22":{v:3525,b:6,p:2514,r:42.25,pc:6},"2026-02-23":{v:3967,b:13,p:5907,r:1587.47,pc:13},"2026-02-24":{v:3867,b:52,p:24304,r:11199,pc:56},"2026-02-25":{v:4339,b:27,p:12491,r:10731.8,pc:29},"2026-02-26":{v:4637,b:17,p:8141,r:6049,pc:19},"2026-02-27":{v:4498,b:22,p:10017,r:6624.1,pc:23},"2026-02-28":{v:4142,b:23,p:10895,r:6405.78,pc:25},"2026-03-01":{v:6341,b:37,p:19196,r:15769.4,pc:44},"2026-03-02":{v:4032,b:42,p:19675,r:8675,pc:45},"2026-03-03":{v:3330,b:43,p:18397,r:7303,pc:43},"2026-03-04":{v:3220,b:42,p:21671,r:11771.9,pc:49},"2026-03-05":{v:3758,b:31,p:14766,r:10017,pc:34},"2026-03-06":{v:7407,b:159,p:68385,r:20544.6,pc:170},"2026-03-07":{v:4836,b:56,p:25658,r:6418.87,pc:62},"2026-03-08":{v:5547,b:64,p:28930,r:7615,pc:70},"2026-03-09":{v:4475,b:29,p:12650,r:7276.95,pc:30},"2026-03-10":{v:4838,b:6,p:2594,r:2390,pc:6},"2026-03-11":{v:4258,b:11,p:5427,r:6428.8,pc:13},"2026-03-12":{v:4962,b:15,p:18766,r:16237.1,pc:34},"2026-03-13":{v:3007,b:18,p:24994,r:22809.3,pc:46},"2026-03-14":{v:2712,b:23,p:10096,r:6225,pc:24},"2026-03-15":{v:2777,b:8,p:8385,r:7565.56,pc:15},"2026-03-16":{v:3623,b:10,p:4310,r:3811.96,pc:10},"2026-03-17":{v:3389,b:18,p:13333,r:9897.45,pc:27},"2026-03-18":{v:2264,b:41,p:17797,r:6664,pc:43},"2026-03-19":{v:2042,b:41,p:18197,r:7666.46,pc:43},"2026-03-20":{v:3056,b:21,p:8819,r:2913,pc:21},"2026-03-21":{v:6301,b:24,p:10735,r:4709,pc:25},"2026-03-22":{v:4576,b:30,p:13329,r:2654,pc:31},"2026-03-23":{v:5553,b:67,p:30647,r:5163.25,pc:73},"2026-03-24":{v:6319,b:28,p:14966,r:6158,pc:34},"2026-03-25":{v:5952,b:27,p:16066,r:9783.9,pc:37},"2026-03-26":{v:5950,b:17,p:8970,r:2194.26,pc:19},"2026-03-27":{v:6549,b:20,p:10523,r:5335.99,pc:20},"2026-03-28":{v:7410,b:43,p:22529,r:6637,pc:43},"2026-03-29":{v:10826,b:32,p:16856,r:4878,pc:33},"2026-03-30":{v:9862,b:22,p:11943,r:6626,pc:23},"2026-03-31":{v:9242,b:41,p:23296,r:10493,pc:45},"2026-04-01":{v:9166,b:23,p:12100,r:5042.9,pc:23},"2026-04-02":{v:5386,b:19,p:9936,r:5205.8,pc:19},"2026-04-03":{v:4517,b:24,p:13024,r:6044,pc:25},"2026-04-04":{v:3116,b:20,p:11721,r:4411,pc:22},"2026-04-05":{v:3431,b:15,p:8398,r:3518,pc:16},"2026-04-06":{v:3100,b:14,p:7181,r:3554,pc:14},"2026-04-07":{v:3360,b:37,p:20286,r:7888,pc:39},"2026-04-08":{v:3376,b:35,p:19158,r:7123.9,pc:37},"2026-04-09":{v:4737,b:31,p:16744,r:10310.2,pc:32},"2026-04-10":{v:3037,b:35,p:18853,r:8328,pc:36},"2026-04-11":{v:3070,b:18,p:9898,r:2557,pc:19},"2026-04-12":{v:3640,b:25,p:15218,r:6053,pc:29},"2026-04-13":{v:2924,b:19,p:10073,r:5766,pc:19},"2026-04-14":{v:2999,b:4,p:2144,r:1030,pc:4},"2026-04-15":{v:2790,b:42,p:22651,r:5702,pc:44},"2026-04-16":{v:2740,b:30,p:16762,r:5229,pc:32},"2026-04-17":{v:13665,b:133,p:65257,r:12588,pc:140},"2026-04-18":{v:7328,b:114,p:55101,r:8877,pc:117},"2026-04-19":{v:7870,b:98,p:48826,r:13342,pc:102},"2026-04-20":{v:3779,b:14,p:7128,r:4392.9,pc:14},"2026-04-21":{v:3560,b:8,p:4192,r:4921,pc:8},"2026-04-22":{v:3980,b:14,p:7582,r:1936,pc:15},"2026-04-23":{v:4060,b:44,p:26532,r:15915,pc:51},"2026-04-24":{v:3980,b:39,p:21444,r:10415,pc:42},"2026-04-25":{v:4641,b:29,p:16534,r:11714,pc:31},"2026-04-26":{v:5321,b:35,p:20173,r:9665,pc:38},"2026-04-27":{v:4665,b:40,p:22396,r:8576,pc:44},"2026-04-28":{v:4697,b:33,p:17482,r:7553,pc:34},"2026-04-29":{v:4196,b:21,p:11233,r:5876,pc:22},"2026-04-30":{v:3089,b:29,p:15041,r:9074,pc:29},"2026-05-01":{v:3504,b:9,p:5306,r:2656,pc:10},"2026-05-02":{v:3450,b:17,p:9294,r:3467,pc:18},"2026-05-03":{v:3621,b:12,p:6847,r:3609,pc:13},"2026-05-04":{v:3352,b:8,p:4316,r:3994,pc:8},"2026-05-05":{v:3640,b:11,p:5566,r:2881,pc:11},"2026-05-06":{v:3597,b:40,p:22763,r:10457,pc:43},"2026-05-07":{v:3420,b:25,p:13819,r:5098,pc:26},"2026-05-08":{v:3421,b:24,p:12521,r:5761,pc:24},"2026-05-09":{v:3448,b:24,p:12666,r:5693,pc:24},"2026-05-10":{v:2952,b:35,p:19345,r:9530,pc:37},"2026-05-11":{v:3305,b:4,p:2119,r:2114.9,pc:4},"2026-05-12":{v:4092,b:8,p:4822,r:4332,pc:9},"2026-05-13":{v:3965,b:68,p:34527,r:8663,pc:71},"2026-05-14":{v:4302,b:39,p:20767,r:12154,pc:43},"2026-05-15":{v:3703,b:33,p:17489,r:7175,pc:36},"2026-05-16":{v:3874,b:49,p:24955,r:10546,pc:52},"2026-05-17":{v:4205,b:52,p:26359,r:6997,pc:54},"2026-05-18":{v:3981,b:33,p:16335,r:6726,pc:34},"2026-05-19":{v:3772,b:39,p:20328,r:11516,pc:42},"2026-05-20":{v:3251,b:38,p:18237,r:7519,pc:38},"2026-05-21":{v:3048,b:42,p:21581,r:10825,pc:44},"2026-05-22":{v:4314,b:41,p:20425,r:8555,pc:42},"2026-05-23":{v:4357,b:57,p:29403,r:11948,pc:60},"2026-05-24":{v:6165,b:54,p:28254,r:12479,pc:58},"2026-05-25":{v:4245,b:58,p:28766,r:13859,pc:60},"2026-05-26":{v:4508,b:40,p:21487,r:13978,pc:44},"2026-05-27":{v:4121,b:74,p:37111,r:17696,pc:77},"2026-05-28":{v:3527,b:48,p:24310,r:12534,pc:50},"2026-05-29":{v:3101,b:48,p:24163,r:14497,pc:50},"2026-05-30":{v:3206,b:47,p:23235,r:9439,pc:48},"2026-05-31":{v:3984,b:66,p:33985,r:17776,pc:70},"2026-06-01":{v:3611,b:56,p:28630,r:12859,pc:59},"2026-06-02":{v:3610,b:59,p:28740,r:14701,pc:60},"2026-06-03":{v:4032,b:41,p:19700,r:10836,pc:41},"2026-06-04":{v:3957,b:32,p:15907,r:9077,pc:33},"2026-06-05":{v:2882,b:35,p:20349,r:11256,pc:42},"2026-06-06":{v:2995,b:36,p:17204,r:12337,pc:36},"2026-06-07":{v:4031,b:42,p:20761,r:16180,pc:43},"2026-06-08":{v:3435,b:44,p:22092,r:13710,pc:46},"2026-06-09":{v:2467,b:49,p:27331,r:21388,pc:57},"2026-06-10":{v:2641,b:22,p:11254,r:7188,pc:23},"2026-06-11":{v:2942,b:27,p:12978,r:9078,pc:27},"2026-06-12":{v:2584,b:36,p:17378,r:9056.9,pc:36},"2026-06-13":{v:3411,b:34,p:16818,r:8506,pc:35},"2026-06-14":{v:3905,b:38,p:19246,r:12957,pc:40},"2026-06-15":{v:3637,b:64,p:33028,r:16995.6,pc:69},"2026-06-16":{v:2714,b:60,p:29041,r:14624,pc:61},"2026-06-17":{v:2857,b:49,p:32454,r:18183.9,pc:66},"2026-06-18":{v:3270,b:110,p:58731,r:29916.6,pc:122},"2026-06-19":{v:3409,b:44,p:21493,r:11806,pc:45},"2026-06-20":{v:3924,b:40,p:20912,r:8047,pc:43},"2026-06-21":{v:4598,b:82,p:42038,r:23735,pc:88},"2026-06-22":{v:3200,b:7,p:3443,r:2384,pc:7},"2026-06-23":{v:3385,b:10,p:5140,r:3533,pc:10},"2026-06-24":{v:2924,b:9,p:4666,r:3883,pc:9},"2026-06-25":{v:2783,b:4,p:2086,r:2907,pc:4},"2026-06-26":{v:2596,b:6,p:2769,r:4393,pc:6},"2026-06-27":{v:2144,b:5,p:2675,r:1403,pc:5},"2026-06-28":{v:2357,b:6,p:2934,r:2026,pc:6},"2026-06-29":{v:2291,b:8,p:4072,r:2879,pc:8},"2026-06-30":{v:1767,b:9,p:4221,r:0,pc:9},"2026-07-01":{v:1910,b:3,p:1367,r:2019,pc:3},"2026-07-02":{v:2190,b:5,p:2615,r:1451.99,pc:5},"2026-07-03":{v:1872,b:3,p:1497,r:838,pc:3},"2026-07-04":{v:2808,b:11,p:5669,r:1043,pc:11},"2026-07-05":{v:3119,b:9,p:4491,r:2435,pc:9},"2026-07-06":{v:2621,b:9,p:5774,r:1587,pc:11},"2026-07-07":{v:2587,b:12,p:6652,r:2998,pc:13},"2026-07-08":{v:2149,b:20,p:11368,r:4112,pc:22},"2026-07-09":{v:1804,b:19,p:9621,r:4037,pc:19},"2026-07-10":{v:2866,b:5,p:2435,r:1508.9,pc:5},"2026-07-11":{v:3084,b:8,p:4032,r:2042.9,pc:8},"2026-07-12":{v:3722,b:35,p:17195,r:3804,pc:40},"2026-07-13":{v:2575,b:20,p:9923,r:3288,pc:22},"2026-07-14":{v:2373,b:10,p:4940,r:2560,pc:10},"2026-07-15":{v:2267,b:9,p:5070,r:1981,pc:10},"2026-07-16":{v:2436,b:4,p:1556,r:1442,pc:4},"2026-07-17":{v:10484,b:118,p:48163,r:5153,pc:122},"2026-07-18":{v:6039,b:144,p:59391,r:12051.9,pc:149},"2026-07-19":{v:3711,b:110,p:46275,r:10581.6,pc:115},"2026-07-20":{v:1943,b:17,p:7442,r:5263,pc:18},"2026-07-21":{v:1025,b:5,p:2585,r:2569,pc:5},"2026-07-22":{v:1284,b:12,p:6013,r:6516.2,pc:12},"2026-07-23":{v:3281,b:34,p:14326,r:7269.59,pc:34}},
@@ -802,169 +848,137 @@ function renderWXT(pid){
   var nameEl=document.getElementById('wxt-prod-name');
   var w=wxtOf(pid);
   if(!box) return;
+  nameEl.textContent='（商品ID '+pid+'）';
 
-  // 获取筛选后的日期范围
-  var fdates=(typeof getFilteredDates==='function') ? getFilteredDates() : null;
+  var fdates=(typeof getFilteredDates==='function')?getFilteredDates():null;
   var daily=WXT_DAILY[String(pid)];
 
-  // === 站外工具行生成函数（复用于 fallback 和正常路径）===
-  function offsiteRows(){
-    var os=OFFSITE_BY_MODEL?OFFSITE_BY_MODEL[MODEL_CODE]:null;
-    if(!os) return {html:'',oSpend:0,oGmv:0};
-    var html='', oSpend=0, oGmv=0;
-    var tools=[
-      {name:'PA',d:os.PA,gKey:'gmv_ec',gLabel:'引流电商GMV'},
-      {name:'红猫UDS',d:os['红猫UDS'],gKey:'gmv',gLabel:'GMV(7日)'},
-      {name:'抖音UDS',d:os['抖音UDS'],gKey:'gmv_ec',gLabel:'引流电商GMV'},
-      {name:'小红星聚光',d:os['小红星聚光'],gKey:'gmv_task',gLabel:'任务商品成交'}
-    ];
-    tools.forEach(function(t){
-      if(!t.d||!t.d.spend) return;
-      var s=t.d.spend, g=t.d[t.gKey]||0;
-      var roi=s>0?(g/s):0;
-      oSpend+=s; oGmv+=g;
-      html+='<tr style="background:rgba(255,166,2,.04)"><td><span style="color:#feca57">●</span> '+t.name+'</td>'
-        +'<td class="text-right">'+fmtWan(s)+'</td>'
-        +'<td class="text-right">'+fmtWan(g)+' <small style="color:#888">('+t.gLabel+')</small></td>'
-        +'<td class="text-right">'+(s>0?roi.toFixed(2):'—')+'</td></tr>';
-    });
-    return {html:html, oSpend:oSpend, oGmv:oGmv};
+  // 万相台场景花费/成交（优先按筛选区间，无区间则用全周期）
+  var scenes={}, useFiltered=false;
+  if(daily && fdates && fdates.length){
+    var fd=fdates.filter(function(d){ return daily[d]!=null; });
+    if(fd.length>0){
+      var fS=0, fG=0, fS2={};
+      fd.forEach(function(d){
+        var dd=daily[d]; fS+=(dd.s||0); fG+=(dd.g||0);
+        if(dd.sc) Object.keys(dd.sc).forEach(function(sn){
+          if(!fS2[sn]) fS2[sn]={s:0,g:0};
+          fS2[sn].s+=(dd.sc[sn].s||0); fS2[sn].g+=(dd.sc[sn].g||0);
+        });
+      });
+      if(fS>0){ scenes=fS2; useFiltered=true; }
+    }
+  }
+  if(!useFiltered && w){
+    Object.keys(w.sc||{}).forEach(function(sn){ scenes[sn]={s:(w.sc[sn].s||0),g:(w.sc[sn].g||0)}; });
   }
 
-  if(!daily || !fdates || !fdates.length){
-    // 无逐日数据或无筛选日期，回退到全周期
-    if(!w){
-      nameEl.textContent='';
-      // 即使无万相台数据，也尝试展示站外工具
-      var osF=offsiteRows();
-      if(osF.oSpend>0){
-        var osRoi=osF.oSpend>0?(osF.oGmv/osF.oSpend):0;
-        box.innerHTML='<div class="wxt-summary">该商品在万相台无投放数据（商品ID：'+pid+'），但有以下<b>站外投放</b></div>'
-          +'<table class="data-table"><thead><tr>'
-          +'<th style="width:40%">推广工具</th><th class="text-right" style="width:20%">花费</th>'
-          +'<th class="text-right" style="width:20%">成交金额</th><th class="text-right" style="width:20%">ROI</th>'
-          +'</tr></thead><tbody>'+osF.html
-          +'<tr style="font-weight:700;border-top:1px solid var(--border);background:rgba(255,166,2,.08)"><td>站外合计</td>'
-          +'<td class="text-right">'+fmtWan(osF.oSpend)+'</td><td class="text-right">'+fmtWan(osF.oGmv)+'</td>'
-          +'<td class="text-right">'+(osF.oSpend>0?osRoi.toFixed(2):'—')+'</td></tr>'
-          +'</tbody></table>';
-      }else{
-        box.innerHTML='<div class="wxt-summary">该商品在万相台无投放数据（商品ID：'+pid+'）</div>';
-      }
-      document.getElementById('wxt-chart').style.display='none';
-      return;
-    }
-    // 全周期 fallback：直接用 WXT_BY_PID + SV_MODEL
-    var svS=0,svG=0;
-    if(typeof SV_MODEL!=='undefined' && SV_MODEL[MODEL_CODE]){ svS=SV_MODEL[MODEL_CODE].s||0; svG=SV_MODEL[MODEL_CODE].g_direct||0; }
-    var tS=w.s+svS, tG=w.g+svG, tR=tS?tG/tS:0;
-    var frows='';
-    Object.keys(w.sc||{}).forEach(function(sn){var s=w.sc[sn];var r=s.s?s.g/s.s:0;
-      frows+='<tr><td>'+sn+'</td><td class="text-right">'+fmtWan(s.s)+'</td><td class="text-right">'+fmtWan(s.g)+'</td><td class="text-right">'+r.toFixed(2)+'</td></tr>';});
-    if(svS>0){var sr=svS?svG/svS:0;
-      frows+='<tr><td><span style="color:#ffa502">●</span> 超级短视频</td><td class="text-right">'+fmtWan(svS)+'</td><td class="text-right">'+fmtWan(svG)+'</td><td class="text-right">'+sr.toFixed(2)+'</td></tr>';}
-    // 站外工具
-    var osF=offsiteRows();
-    var allSpend=tS+osF.oSpend, allGmv=tG+osF.oGmv, allRoi=allSpend>0?(allGmv/allSpend):0;
-    nameEl.textContent='（商品ID '+pid+'）';
-    box.innerHTML='<div class="wxt-summary">总花费 <b>'+fmtWan(allSpend)+'</b> · 直接成交 <b>'+fmtWan(allGmv)+'</b> · 投入产出比 <b>'+allRoi.toFixed(2)+'</b><span style="color:#5b6b7b;font-weight:400;margin-left:8px">(全周期 · 站内'+fmtWan(tS)+' + 站外'+fmtWan(osF.oSpend)+')</span></div>'
-      +'<table class="data-table"><thead><tr>'
-      +'<th style="width:40%">推广工具</th><th class="text-right" style="width:20%">花费</th>'
-      +'<th class="text-right" style="width:20%">直接成交金额</th><th class="text-right" style="width:20%">投入产出比</th>'
-      +'</tr></thead><tbody>'+frows
-      // 站内合计
-      +'<tr style="font-weight:600;border-top:1px solid var(--border);background:rgba(0,210,255,.06)"><td>站内合计</td>'
-      +'<td class="text-right">'+fmtWan(tS)+'</td><td class="text-right">'+fmtWan(tG)+'</td><td class="text-right">'+tR.toFixed(2)+'</td></tr>'
-      // 站外工具行
-      +osF.html
-      // 总计
-      +'<tr style="font-weight:700;border-top:2px solid var(--border);background:rgba(46,204,113,.08)"><td>总计</td>'
-      +'<td class="text-right">'+fmtWan(allSpend)+'</td><td class="text-right">'+fmtWan(allGmv)+'</td><td class="text-right">'+allRoi.toFixed(2)+'</td></tr>'
-      +'</tbody></table>';
+  // 超级短视频（型号级）
+  var svSpend=0, svGmv=0, svM=null;
+  if(typeof SV_MODEL!=='undefined' && SV_MODEL[MODEL_CODE]){ svSpend=SV_MODEL[MODEL_CODE].s||0; svGmv=SV_MODEL[MODEL_CODE].g_direct||0; svM=SV_METRICS[MODEL_CODE]||null; }
+
+  // 站外工具聚合（含 clicks/cart/conv）
+  function offsiteAgg(){
+    var os=OFFSITE_BY_MODEL?OFFSITE_BY_MODEL[MODEL_CODE]:null;
+    var tools=[
+      {name:'PA',gKey:'gmv_ec',gLabel:'引流电商GMV'},
+      {name:'红猫UDS',gKey:'gmv',gLabel:'GMV(7日)'},
+      {name:'抖音UDS',gKey:'gmv_ec',gLabel:'引流电商GMV'},
+      {name:'小红星聚光',gKey:'gmv_task',gLabel:'任务商品成交'}
+    ];
+    var rows=[],oS=0,oG=0,oC=0,oCa=0,oCo=0;
+    if(os) tools.forEach(function(t){
+      var d=os[t.name]; if(!d||!d.spend) return;
+      var s=d.spend, g=d[t.gKey]||0, cl=d.clicks||0, ca=d.cart||0, co=d.conv||0;
+      oS+=s; oG+=g; oC+=cl; oCa+=ca; oCo+=co;
+      rows.push({name:t.name,offsite:true,spend:s,gmv:g,gLabel:t.gLabel,clicks:cl,cart:ca,conv:co});
+    });
+    return {rows:rows,spend:oS,gmv:oG,clicks:oC,cart:oCa,conv:oCo};
+  }
+  var osA=offsiteAgg();
+
+  // 无数据兜底
+  if(!w && !svSpend && osA.rows.length===0){
+    box.innerHTML='<div class="wxt-summary">该商品在万相台无投放数据（商品ID：'+pid+'）</div>';
+    document.getElementById('wxt-chart').style.display='none';
     return;
   }
 
-  // 从 WXT_DAILY 按筛选区间聚合
-  var fd=fdates.filter(function(d){ return daily[d]!=null; });
-  var fSpend=0, fGmv=0;
-  var fScenes={};
-  fd.forEach(function(d){
-    var dd=daily[d];
-    fSpend += dd.s||0;
-    fGmv  += dd.g||0;
-    if(dd.sc){ Object.keys(dd.sc).forEach(function(sn){
-      if(!fScenes[sn]) fScenes[sn]={s:0,g:0};
-      fScenes[sn].s += dd.sc[sn].s||0;
-      fScenes[sn].g += dd.sc[sn].g||0;
-    });}
+  // 站内工具行（万相台场景 + 超级短视频）并累加站内合计
+  var inS=0,inG=0,inC=0,inCa=0,inCo=0;
+  var sceneRows=[];
+  Object.keys(scenes).forEach(function(sn){
+    var s=scenes[sn];
+    var m=(WXT_METRICS[String(pid)]&&WXT_METRICS[String(pid)][sn])||null;
+    var cl=m?m.clicks:0, ca=m?m.cart:0, co=m?m.conv:0;
+    inS+=s.s; inG+=s.g; inC+=cl; inCa+=ca; inCo+=co;
+    sceneRows.push({name:sn,offsite:false,spend:s.s,gmv:s.g,gLabel:null,clicks:cl,cart:ca,conv:co});
   });
-
-  // 构建展示数据：优先用筛选区间，若区间内无数据则回退全周期
-  var useFiltered = fd.length > 0 && fSpend > 0;
-  var dispSpend = useFiltered ? fSpend : w.s;
-  var dispGmv   = useFiltered ? fGmv : w.g;
-  var dispSc    = useFiltered ? fScenes : (w?w.sc:{});
-  var roi = dispSpend>0 ? (dispGmv/dispSpend) : 0;
-
-  nameEl.textContent='（商品ID '+pid+'）';
-  var rows='';
-  Object.keys(dispSc).forEach(function(scn){
-    var s=dispSc[scn];
-    var r = s.s>0 ? (s.g/s.s) : 0;
-    rows+='<tr><td style="width:40%">'+scn+'</td>'
-      +'<td class="text-right" style="width:20%">'+fmtWan(s.s)+'</td>'
-      +'<td class="text-right" style="width:20%">'+fmtWan(s.g)+'</td>'
-      +'<td class="text-right" style="width:20%">'+ (s.s>0? r.toFixed(2) : '—') +'</td></tr>';
-  });
-
-  // 超级短视频（型号级汇总，来自 SV_MODEL）
-  var svSpend=0, svGmv=0;
-  if(typeof SV_MODEL!=='undefined' && SV_MODEL[MODEL_CODE]){
-    svSpend = SV_MODEL[MODEL_CODE].s || 0;
-    svGmv = SV_MODEL[MODEL_CODE].g_direct || 0;
-  }
   if(svSpend>0){
-    var svRoi = svSpend ? svGmv/svSpend : 0;
-    rows+='<tr><td style="width:40%"><span style="color:#ffa502">●</span> 超级短视频</td>'
-      +'<td class="text-right" style="width:20%">'+fmtWan(svSpend)+'</td>'
-      +'<td class="text-right" style="width:20%">'+fmtWan(svGmv)+'</td>'
-      +'<td class="text-right" style="width:20%">'+svRoi.toFixed(2)+'</td></tr>';
+    var svCl=svM?svM.clicks:0, svCa=svM?svM.cart:0, svCo=svM?svM.conv:0;
+    inS+=svSpend; inG+=svGmv; inC+=svCl; inCa+=svCa; inCo+=svCo;
+    sceneRows.push({name:'超级短视频',offsite:false,sv:true,spend:svSpend,gmv:svGmv,gLabel:null,clicks:svCl,cart:svCa,conv:svCo});
+  }
+  var insiteRoi=inS>0?(inG/inS):0;
+  var totalSpend=inS+osA.spend, totalGmv=inG+osA.gmv;
+  var totalClicks=inC+osA.clicks, totalCart=inCa+osA.cart, totalConv=inCo+osA.conv;
+  var totalRoi=totalSpend>0?(totalGmv/totalSpend):0;
+
+  function rowCells(r, roi){
+    var cpc = r.clicks>0 ? (r.spend/r.clicks).toFixed(2) : '—';
+    var cc  = r.cart>0 ? fmtWan(r.cart) : '—';
+    var cv  = r.conv>0 ? (r.spend/r.conv).toFixed(2) : '—';
+    return '<td class="text-right">'+fmtWan(r.spend)+'</td>'
+      +'<td class="text-right">'+fmtWan(r.gmv)+(r.gLabel?' <small style="color:#888">('+r.gLabel+')</small>':'')+'</td>'
+      +'<td class="text-right">'+roi.toFixed(2)+'</td>'
+      +'<td class="text-right">'+cpc+'</td>'
+      +'<td class="text-right" style="color:#feca57">'+cc+'</td>'
+      +'<td class="text-right">'+cv+'</td>';
+  }
+  function nameCell(r){
+    if(r.offsite) return '<td><span style="color:#feca57">●</span> '+r.name+'</td>';
+    if(r.sv) return '<td><span style="color:#ffa502">●</span> '+r.name+'</td>';
+    return '<td>'+r.name+'</td>';
   }
 
-  // 站内合计
-  var insiteSpend = dispSpend + svSpend;
-  var insiteGmv  = dispGmv + svGmv;
-  var insiteRoi   = insiteSpend>0 ? (insiteGmv/insiteSpend) : 0;
+  var rangeLabel = useFiltered ? ('当前区间 · '+fd.length+'天 ('+(fdates[0]||'')+' ~ '+(fdates[fdates.length-1]||'')+')') : '全周期';
 
-  // 站外工具
-  var osF=offsiteRows();
-  var totalSpend = insiteSpend + osF.oSpend;
-  var totalGmv  = insiteGmv + osF.oGmv;
-  var totalRoi   = totalSpend>0 ? (totalGmv/totalSpend) : 0;
-
-  var rangeLabel = useFiltered ?
-    ('当前区间 · '+fd.length+'天 ('+(fd[0]||'')+' ~ '+((fd[fd.length-1])||'')+')') :
-    '全周期（区间内无投放数据）';
-
-  box.innerHTML='<div class="wxt-summary">总花费 <b>'+fmtWan(totalSpend)+'</b> · 直接成交 <b>'+fmtWan(totalGmv)+'</b> · 投入产出比 <b>'+(totalSpend>0?totalRoi.toFixed(2):'—')+'</b><span style="color:#5b6b7b;font-weight:400;margin-left:8px">('+rangeLabel+' · 站内'+fmtWan(insiteSpend)+' + 站外'+fmtWan(osF.oSpend)+')</span></div>'
+  var html='<div class="wxt-summary">总花费 <b>'+fmtWan(totalSpend)+'</b> · 直接成交 <b>'+fmtWan(totalGmv)+'</b> · 投入产出比 <b>'+totalRoi.toFixed(2)+'</b><span style="color:#5b6b7b;font-weight:400;margin-left:8px">('+rangeLabel+' · 站内'+fmtWan(inS)+' + 站外'+fmtWan(osA.spend)+')</span></div>'
     +'<table class="data-table"><thead><tr>'
-    +'<th style="width:40%">推广工具</th><th class="text-right" style="width:20%">花费</th>'
-    +'<th class="text-right" style="width:20%">直接成交金额</th><th class="text-right" style="width:20%">投入产出比</th>'
-    +'</tr></thead><tbody>'+rows
-    // 站内合计
-    +'<tr style="font-weight:600;border-top:1px solid var(--border);background:rgba(0,210,255,.06)"><td>站内合计</td>'
-    +'<td class="text-right">'+fmtWan(insiteSpend)+'</td><td class="text-right">'+fmtWan(insiteGmv)+'</td>'
-    +'<td class="text-right">'+(insiteSpend>0?insiteRoi.toFixed(2):'—')+'</td></tr>'
-    // 站外工具行
-    +osF.html
-    // 总计
-    +'<tr style="font-weight:700;border-top:2px solid var(--border);background:rgba(46,204,113,.08)"><td>总计</td>'
-    +'<td class="text-right">'+fmtWan(totalSpend)+'</td><td class="text-right">'+fmtWan(totalGmv)+'</td>'
-    +'<td class="text-right">'+ (totalSpend>0? totalRoi.toFixed(2) : '—') +'</td></tr>'
-    +'</tbody></table>';
+    +'<th style="width:24%">推广工具</th><th class="text-right" style="width:12%">花费</th>'
+    +'<th class="text-right" style="width:16%">直接成交金额</th><th class="text-right" style="width:10%">投入产出比</th>'
+    +'<th class="text-right" style="width:11%">CPC(元/点击)</th><th class="text-right" style="width:13%">加购成本</th><th class="text-right" style="width:14%">转化成本(元/转化)</th>'
+    +'</tr></thead><tbody>';
 
+  sceneRows.forEach(function(r){
+    html+='<tr>'+nameCell(r)+rowCells(r, r.spend>0?(r.gmv/r.spend):0)+'</tr>';
+  });
+  // 站内合计
+  html+='<tr style="font-weight:600;border-top:1px solid var(--border);background:rgba(0,210,255,.06)"><td>站内合计</td>'
+    +'<td class="text-right">'+fmtWan(inS)+'</td>'
+    +'<td class="text-right">'+fmtWan(inG)+'</td>'
+    +'<td class="text-right">'+insiteRoi.toFixed(2)+'</td>'
+    +'<td class="text-right">'+(inC>0?(inS/inC).toFixed(2):'—')+'</td>'
+    +'<td class="text-right" style="color:#feca57">'+(inCa>0?fmtWan(inCa):'—')+'</td>'
+    +'<td class="text-right">'+(inCo>0?(inS/inCo).toFixed(2):'—')+'</td></tr>';
+  // 站外工具行
+  osA.rows.forEach(function(r){
+    html+='<tr style="background:rgba(255,166,2,.04)">'+nameCell(r)+rowCells(r, r.spend>0?(r.gmv/r.spend):0)+'</tr>';
+  });
+  // 总计
+  html+='<tr style="font-weight:700;border-top:2px solid var(--border);background:rgba(46,204,113,.08)"><td>总计</td>'
+    +'<td class="text-right">'+fmtWan(totalSpend)+'</td>'
+    +'<td class="text-right">'+fmtWan(totalGmv)+'</td>'
+    +'<td class="text-right">'+totalRoi.toFixed(2)+'</td>'
+    +'<td class="text-right">'+(totalClicks>0?(totalSpend/totalClicks).toFixed(2):'—')+'</td>'
+    +'<td class="text-right" style="color:#feca57">'+(totalCart>0?fmtWan(totalCart):'—')+'</td>'
+    +'<td class="text-right">'+(totalConv>0?(totalSpend/totalConv).toFixed(2):'—')+'</td></tr>';
+
+  html+='</tbody></table>';
+  box.innerHTML=html;
   renderWXTChart(pid);
 }
+
 // 万相台时间维度切换
 document.getElementById('wxt-time-bar').addEventListener('click',function(e){
   var btn=e.target.closest('.wxt-time-btn');if(!btn)return;
