@@ -264,10 +264,10 @@ body {
   <div class="charts-grid">
     <div class="chart-panel full-width">
       <h3>🔥 各型号销售排行</h3>
-      <div style="max-height:520px;overflow-y:auto">
-        <table class="data-table" id="top-products-table">
+      <div style="max-height:520px;overflow:auto">
+        <table class="data-table" id="top-products-table" style="min-width:960px">
           <thead><tr>
-            <th style="width:4%">#</th><th style="width:16%">型号</th><th class="text-right" style="width:13%">支付金额<br/><small class="syj-hdr">(生意经)</small></th><th class="text-right" style="width:12%">扣退后实际<br/><small class="syj-hdr">(生意经)</small></th><th class="text-right" style="width:9%">退款率<br/><small class="syj-hdr">(生意经)</small></th><th class="text-right" style="width:9%">转化率</th><th class="text-right" style="width:14%">支付件数<br/><small class="syj-hdr">生参 | 生意经(销量/退货)</small></th><th style="width:16%"></th>
+            <th style="width:3%">#</th><th style="width:14%">型号</th><th class="text-right" style="width:10%">支付金额<br/><small class="syj-hdr">(生意经)</small></th><th class="text-right" style="width:9%">扣退后实际<br/><small class="syj-hdr">(生意经)</small></th><th class="text-right" style="width:7%">退款率<br/><small class="syj-hdr">(生意经)</small></th><th class="text-right" style="width:7%">转化率</th><th class="text-right" style="width:10%">支付件数<br/><small class="syj-hdr">生参 | 生意经(销量/退货)</small></th><th class="text-right" style="width:9%">推广花费<br/><small class="syj-hdr">万相台</small></th><th class="text-right" style="width:8%">推广费率</th><th class="text-right" style="width:8%">扣退后推广费率</th><th style="width:13%"></th>
           </tr></thead>
           <tbody></tbody>
         </table>
@@ -659,6 +659,9 @@ function renderCore(state){
   var CODE2CAT={'7901':'蒸汽清洁机','7902':'蒸汽清洁机','6906':'布艺清洗机','3901':'布艺清洗机','4705':'面包机','1352':'面包机','4705PLUS':'面包机','018':'面包机','1326':'果蔬清洗机','1349':'厨师机/和面机','7006':'蒸汽拖把','8117':'多士炉','5028':'绞肉机','5029':'绞肉机','1457':'破壁机','9009':'电煮锅','M1':'制冰机','B1':'烧水杯','1005':'电蒸锅'};
   var PID2CODE={};
   Object.keys(MODEL_PIDS).forEach(function(c){ MODEL_PIDS[c].forEach(function(p){ PID2CODE[p]=c; }); });
+  // --- 万相台（站内广告）按商品ID花费（全周期汇总，来自 万相台 数据源 sheet；已按 String(pid) 统一 int/str 键）---
+  var WXT_BY_PID={"685451605867": {"s": 23598.59, "g": 139223.04, "sc": {"关键词推广": {"s": 18802.25, "g": 128414.34}, "人群推广": {"s": 4796.34, "g": 10808.7}}}, "1000447457821": {"s": 302091.38, "g": 1546092.89, "sc": {"关键词推广": {"s": 212734.41, "g": 982905.08}, "人群推广": {"s": 77405.54, "g": 501144.76}, "货品全站推广": {"s": 11951.43, "g": 62043.05}}}, "594417980776": {"s": 885.27, "g": 5074.0, "sc": {"关键词推广": {"s": 885.27, "g": 5074.0}}}, "705784153031": {"s": 342898.21, "g": 1621946.2, "sc": {"关键词推广": {"s": 234756.36, "g": 1003445.3}, "人群推广": {"s": 59091.23, "g": 275410.8}, "货品全站推广": {"s": 49050.62, "g": 343090.1}}}, "781304398878": {"s": 210611.82, "g": 866246.42, "sc": {"关键词推广": {"s": 134652.04, "g": 414888.84}, "人群推广": {"s": 52480.59, "g": 336622.96}, "货品全站推广": {"s": 23479.19, "g": 114734.62}}}, "587916526954": {"s": 86865.05, "g": 909401.36, "sc": {"关键词推广": {"s": 47943.1, "g": 344116.06}, "货品全站推广": {"s": 38921.95, "g": 565285.3}}}, "800783310698": {"s": 122356.99, "g": 517757.13, "sc": {"关键词推广": {"s": 58397.68, "g": 162392.68}, "人群推广": {"s": 44563.08, "g": 203155.64}, "货品全站推广": {"s": 19396.23, "g": 152208.81}}}, "838981817958": {"s": 929052.77, "g": 7720403.96, "sc": {"人群推广": {"s": 297061.67, "g": 3512345.87}, "货品全站推广": {"s": 151489.08, "g": 1090446.58}, "关键词推广": {"s": 480502.02, "g": 3117611.51}}}, "674178515519": {"s": 474980.7, "g": 3182927.06, "sc": {"关键词推广": {"s": 231316.96, "g": 1069232.64}, "人群推广": {"s": 222244.21, "g": 1947844.44}, "货品全站推广": {"s": 21419.53, "g": 165849.98}}}, "700251113311": {"s": 643275.7, "g": 5735508.37, "sc": {"货品全站推广": {"s": 183744.13, "g": 2091849.2}, "关键词推广": {"s": 362955.12, "g": 2480413.67}, "人群推广": {"s": 96576.45, "g": 1163245.5}}}, "992523484907": {"s": 1062.84, "g": 1407.0, "sc": {"人群推广": {"s": 1062.84, "g": 1407.0}, "关键词推广": {"s": 0.0, "g": 0.0}}}, "718104088075": {"s": 55604.71, "g": 235009.81, "sc": {"货品全站推广": {"s": 53422.45, "g": 230493.51}, "关键词推广": {"s": 2182.26, "g": 4516.3}}}, "831056753185": {"s": 51293.86, "g": 202069.59, "sc": {"人群推广": {"s": 26255.15, "g": 115944.63}, "关键词推广": {"s": 25038.71, "g": 86124.96}}}, "800802957697": {"s": 2067.73, "g": 3745.0, "sc": {"关键词推广": {"s": 2067.73, "g": 3745.0}}}, "756656262858": {"s": 2612.03, "g": 16640.0, "sc": {"关键词推广": {"s": 2612.03, "g": 16640.0}}}, "905517647975": {"s": 23235.04, "g": 70074.61, "sc": {"关键词推广": {"s": 2671.58, "g": 8050.97}, "货品全站推广": {"s": 20563.46, "g": 62023.64}}}, "959096699736": {"s": 10859.15, "g": 17391.92, "sc": {"关键词推广": {"s": 10859.15, "g": 17391.92}}}, "952648711254": {"s": 1550.66, "g": 7945.08, "sc": {"关键词推广": {"s": 1550.66, "g": 7945.08}}}, "802444277863": {"s": 14808.5, "g": 36411.4, "sc": {"关键词推广": {"s": 14808.5, "g": 36411.4}}}, "1033672604682": {"s": 11646.38, "g": 40747.43, "sc": {"人群推广": {"s": 10880.3, "g": 40448.43}, "关键词推广": {"s": 766.08, "g": 299.0}}}, "1035589975567": {"s": 32557.65, "g": 226441.5, "sc": {"关键词推广": {"s": 32557.65, "g": 226441.5}}}, "905073568582": {"s": 766.3, "g": 0.0, "sc": {"关键词推广": {"s": 766.3, "g": 0.0}}}, "1055376369519": {"s": 15779.86, "g": 35240.4, "sc": {"关键词推广": {"s": 15779.86, "g": 35240.4}}}, "1055886782689": {"s": 0.1, "g": 0.0, "sc": {"关键词推广": {"s": 0.1, "g": 0.0}}}, "1047253510708": {"s": 0.0, "g": 0.0, "sc": {"关键词推广": {"s": 0.0, "g": 0.0}}}, "1015301326053": {"s": 0.0, "g": 0.0, "sc": {"关键词推广": {"s": 0.0, "g": 0.0}}}, "1009538714264": {"s": 0.49, "g": 0.0, "sc": {"关键词推广": {"s": 0.49, "g": 0.0}}}, "1004555911766": {"s": 0.0, "g": 0.0, "sc": {"关键词推广": {"s": 0.0, "g": 0.0}}}, "990053413228": {"s": 0.0, "g": 0.0, "sc": {"关键词推广": {"s": 0.0, "g": 0.0}}}, "983610017001": {"s": 0.0, "g": 0.0, "sc": {"关键词推广": {"s": 0.0, "g": 0.0}}}, "955316241060": {"s": 0.0, "g": 0.0, "sc": {"关键词推广": {"s": 0.0, "g": 0.0}}}, "908927758588": {"s": 0.0, "g": 0.0, "sc": {"关键词推广": {"s": 0.0, "g": 0.0}}}, "876079772020": {"s": 0.0, "g": 0.0, "sc": {"关键词推广": {"s": 0.0, "g": 0.0}}}, "855168057812": {"s": 0.1, "g": 0.0, "sc": {"关键词推广": {"s": 0.1, "g": 0.0}}}, "850391599766": {"s": 1.5, "g": 0.0, "sc": {"关键词推广": {"s": 1.5, "g": 0.0}}}, "842621540107": {"s": 0.0, "g": 0.0, "sc": {"关键词推广": {"s": 0.0, "g": 0.0}}}, "728737680882": {"s": 0.22, "g": 0.0, "sc": {"关键词推广": {"s": 0.22, "g": 0.0}}}, "706582475671": {"s": 0.0, "g": 0.0, "sc": {"关键词推广": {"s": 0.0, "g": 0.0}}}, "687103502862": {"s": 0.32, "g": 0.0, "sc": {"关键词推广": {"s": 0.32, "g": 0.0}}}, "681184243160": {"s": 0.0, "g": 0.0, "sc": {"关键词推广": {"s": 0.0, "g": 0.0}}}, "676218821957": {"s": 0.0, "g": 0.0, "sc": {"关键词推广": {"s": 0.0, "g": 0.0}}}, "669397684873": {"s": 0.0, "g": 0.0, "sc": {"关键词推广": {"s": 0.0, "g": 0.0}}}, "650981634265": {"s": 0.0, "g": 0.0, "sc": {"关键词推广": {"s": 0.0, "g": 0.0}}}, "642044346002": {"s": 0.0, "g": 0.0, "sc": {"关键词推广": {"s": 0.0, "g": 0.0}}}, "640227619565": {"s": 0.0, "g": 0.0, "sc": {"关键词推广": {"s": 0.0, "g": 0.0}}}, "618536379874": {"s": 0.28, "g": 0.0, "sc": {"关键词推广": {"s": 0.28, "g": 0.0}}}};
+
 
   // --- 各型号指标统一取自「商品数据源（生参）」sheet（PROD_DAILY）：支付p/退款r/件数pc/访客v/买家b ---
   var modelPay={}, modelRef={}, modelPieces={}, modelVis={}, modelBuy={};
@@ -712,7 +715,7 @@ function renderCore(state){
 
   // --- 各型号销售排行表（统一生参口径 + 生意经对比）---
   var ranked=sids.slice().sort(function(a,b){return modelPay[b]-modelPay[a];});
-  var TCOLW=['4%','16%','13%','12%','9%','9%','14%','13%'];
+  var TCOLW=['3%','14%','10%','9%','7%','7%','10%','9%','8%','8%','13%'];
   var TW=function(i){return ' style="width:'+TCOLW[i]+'"';};
   function syjTag(val, fmtFn){ if(val===null||val===undefined) return ''; return '<span class="syj-cmp">'+fmtFn(val)+'</span>'; }
   var trows='';
@@ -736,6 +739,14 @@ function renderCore(state){
     var syRR=syjTag((syjGross>0&&sr!==undefined)?sr/syjGross:null, function(v){return(v*100).toFixed(1)+'%';});
     // 生意经对比：销售量(q)+退货量(rq) 一并展示，表头已区分生参/生意经(销量/退货)
     var syPcs = (sq!==undefined||srq!==undefined) ? '<span class="syj-cmp">生意经 销'+((sq!==undefined)?fmtInt(sq):'\u2014')+' / 退'+((srq!==undefined)?fmtInt(srq):'\u2014')+'</span>' : '';
+    // 万相台（站内广告）推广花费及费率：按型号聚合 WXT_BY_PID 全周期花费
+    var wxtSpendForModel=0;
+    (MODEL_PIDS[s]||[]).forEach(function(pid){ var w=WXT_BY_PID[String(pid)]; if(w) wxtSpendForModel+=(w.s||0); });
+    var wr = pay ? wxtSpendForModel/pay : 0;
+    var wnr = net ? wxtSpendForModel/net : 0;
+    var wxtSpendTxt = wxtSpendForModel>0 ? fmtWan(wxtSpendForModel) : '\u2014';
+    var wrTxt = wxtSpendForModel>0 ? (wr*100).toFixed(1)+'%' : '\u2014';
+    var wnrTxt = wxtSpendForModel>0 ? (wnr*100).toFixed(1)+'%' : '\u2014';
     trows+='<tr style="cursor:pointer" onclick="window.open(\'model-detail.html?model='+s+'\',\'_blank\')">'
       +'<td'+TW(0)+' class="text-right">'+(i+1)+'</td>'
       +'<td'+TW(1)+'><strong>'+mfn(s)+'</strong></td>'
@@ -744,7 +755,10 @@ function renderCore(state){
       +'<td'+TW(4)+' class="text-right">'+rrTxt+syRR+'</td>'
       +'<td'+TW(5)+' class="text-right">'+crTxt+'</td>'
       +'<td'+TW(6)+' class="text-right">'+pcTxt+syPcs+'</td>'
-      +'<td'+TW(7)+'><a href="model-detail.html?model='+s+'" target="_blank" style="color:#00d2ff;text-decoration:none;font-size:12px">\ud83d\udd0d \u67e5\u770b\u8be6\u60c5</a></td></tr>';
+      +'<td'+TW(7)+' class="text-right">'+wxtSpendTxt+'</td>'
+      +'<td'+TW(8)+' class="text-right">'+wrTxt+'</td>'
+      +'<td'+TW(9)+' class="text-right">'+wnrTxt+'</td>'
+      +'<td'+TW(10)+'><a href="model-detail.html?model='+s+'" target="_blank" style="color:#00d2ff;text-decoration:none;font-size:12px">\ud83d\udd0d \u67e5\u770b\u8be6\u60c5</a></td></tr>';
   });
   var tt=document.querySelector('#top-products-table tbody'); if(tt) tt.innerHTML=trows;
 }
