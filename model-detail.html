@@ -277,30 +277,30 @@ var WXT_DAILY={"685451605867": {"2026-01-01": {"s": 149.37, "g": 0.0, "sc": {"�
 
 
   // --- 站外投放工具各型号数据（来自源表 Excel；按型号代码索引）---
-  // PA: 消耗/点击数/转化数/加购成本  |  红猫UDS: 消费/点击量/GMV(7日)
-  // 抖音UDS: 消耗/点击数/转化数/加购成本  |  小红星聚光: 投流总消费/点击量/任务商品成交/加购成本
+  // PA: 消耗/点击数/引流电商订单GMV  |  红猫UDS: 消费/点击量/GMV(7日)
+  // 抖音UDS: 消耗/点击数/引流电商订单GMV  |  小红星聚光: 投流总消费/点击量/任务商品成交
   var OFFSITE_BY_MODEL={
     "6906":{
-      "PA":{"spend":464000,"clicks":91661,"conv":2583,"cart":15742},
+      "PA":{"spend":464000,"clicks":91661,"gmv_ec":3411000},
       "红猫UDS":{"spend":160538,"clicks":80165,"gmv":619461},
-      "小红星聚光":{"spend":37762,"clicks":24001,"gmv_task":108956,"cart":6072}
+      "小红星聚光":{"spend":37762,"clicks":24001,"gmv_task":108956}
     },
     "7901":{
-      "PA":{"spend":87200,"clicks":18096,"conv":248,"cart":3371},
+      "PA":{"spend":87200,"clicks":18096,"gmv_ec":400903},
       "红猫UDS":{"spend":557751,"clicks":191708,"gmv":2536854},
-      "抖音UDS":{"spend":37188,"clicks":6153,"conv":34,"cart":4767},
-      "小红星聚光":{"spend":576161,"clicks":367396,"gmv_task":10191322,"cart":3828}
+      "抖音UDS":{"spend":37188,"clicks":6153,"gmv_ec":84944},
+      "小红星聚光":{"spend":576161,"clicks":367396,"gmv_task":10191322}
     },
     "7902":{
-      "PA":{"spend":3653,"clicks":521,"conv":11,"cart":251},
+      "PA":{"spend":3653,"clicks":521,"gmv_ec":7919},
       "红猫UDS":{"spend":78066,"clicks":40199,"gmv":116906},
-      "小红星聚光":{"spend":214358,"clicks":134699,"gmv_task":1201548,"cart":2348}
+      "小红星聚光":{"spend":214358,"clicks":134699,"gmv_task":1201548}
     },
     "1352":{
       "红猫UDS":{"spend":15214,"clicks":15037,"gmv":15077}
     },
     "9009":{
-      "小红星聚光":{"spend":18343,"clicks":42042,"gmv_task":151022,"cart":1183}
+      "小红星聚光":{"spend":18343,"clicks":42042,"gmv_task":151022}
     }
   };
 
@@ -813,9 +813,9 @@ function renderWXT(pid){
     if(!os) return {html:'',oSpend:0,oGmv:0};
     var html='', oSpend=0, oGmv=0;
     var tools=[
-      {name:'PA',d:os.PA,gKey:'conv',gLabel:'转化数'},
+      {name:'PA',d:os.PA,gKey:'gmv_ec',gLabel:'引流电商GMV'},
       {name:'红猫UDS',d:os['红猫UDS'],gKey:'gmv',gLabel:'GMV(7日)'},
-      {name:'抖音UDS',d:os['抖音UDS'],gKey:'conv',gLabel:'转化数'},
+      {name:'抖音UDS',d:os['抖音UDS'],gKey:'gmv_ec',gLabel:'引流电商GMV'},
       {name:'小红星聚光',d:os['小红星聚光'],gKey:'gmv_task',gLabel:'任务商品成交'}
     ];
     tools.forEach(function(t){
