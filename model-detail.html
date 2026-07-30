@@ -641,33 +641,39 @@ function renderWXTChart(pid){
   });
   var sNames=Object.keys(sceneSet);
 
-  // build label + data arrays
-  var xLabels, rawData; // rawData: Array<{total, parts:{sn:val}}>
+  // build label + data arrays — 同时收集花费(s)和成交(g)，用于计算ROI
+  var xLabels, rawData; // rawData: Array<{total, totalG, parts:{sn:{s,g}}, roi}>
   if(isMonth){
     var mMap={};
     dates.forEach(function(d){
       var m=d.substring(0,7);
-      if(!mMap[m]) mMap[m]={total:0,parts:{}};
-      var dd=daily[d]||{s:0,sc:{}};
+      if(!mMap[m]) mMap[m]={total:0,totalG:0,parts:{}};
+      var dd=daily[d]||{s:0,g:0,sc:{}};
       mMap[m].total+=Number(dd.s)||0;
+      mMap[m].totalG+=Number(dd.g)||0;
       sNames.forEach(function(sn){
-        var v=0;
-        if(dd.sc&&dd.sc[sn] && dd.sc[sn].s!=null){ v=Number(dd.sc[sn].s)||0; }
-        mMap[m].parts[sn]=(mMap[m].parts[sn]||0)+v;
+        if(!mMap[m].parts[sn]) mMap[m].parts[sn]={s:0,g:0};
+        if(dd.sc&&dd.sc[sn]){
+          mMap[m].parts[sn].s+=(Number(dd.sc[sn].s)||0);
+          mMap[m].parts[sn].g+=(Number(dd.sc[sn].g)||0);
+        }
       });
     });
     xLabels=Object.keys(mMap).sort();
-    rawData=xLabels.map(function(m){ return mMap[m]; });
+    rawData=xLabels.map(function(m){ var r=mMap[m]; r.roi=r.total?r.totalG/r.total:0; return r; });
   } else {
     xLabels=dates;
     rawData=dates.map(function(d){
-      var dd=daily[d]||{s:0,sc:{}};
-      var row={total:Number(dd.s)||0,parts:{}};
+      var dd=daily[d]||{s:0,g:0,sc:{}};
+      var row={total:Number(dd.s)||0,totalG:Number(dd.g)||0,parts:{}};
       sNames.forEach(function(sn){
-        var v=0;
-        if(dd.sc&&dd.sc[sn] && dd.sc[sn].s!=null){ v=Number(dd.sc[sn].s)||0; }
-        row.parts[sn]=v;
+        row.parts[sn]={s:0,g:0};
+        if(dd.sc&&dd.sc[sn]){
+          row.parts[sn].s=Number(dd.sc[sn].s)||0;
+          row.parts[sn].g=Number(dd.sc[sn].g)||0;
+        }
       });
+      row.roi=row.total?row.totalG/row.total:0;
       return row;
     });
   }
@@ -682,11 +688,25 @@ function renderWXTChart(pid){
       smooth: false,
       symbol: isMonth?'circle':'none',
       symbolSize: isMonth?6:0,
-      data: rawData.map(function(row){ return Number(row.parts[sn])||0; }),
+      data: rawData.map(function(row){ return Number(row.parts[sn].s)||0; }),
       itemStyle: { color: ['#00d2ff','#00e396','#feca57','#ff6b6b','#7c5cfc','#a29bfe'][i%6] },
       emphasis: { focus: 'series' }
     };
   });
+
+  // ROI 折线（总成交/花费），使用右侧Y轴
+  var roiData=rawData.map(function(r){ return r.roi; });
+  var roiSeries={
+    name:'ROI',
+    type:'line',
+    yAxisIndex:1,
+    data: roiData,
+    symbol: isMonth?'circle':'none',
+    symbolSize: isMonth?6:0,
+    lineStyle:{color:'#ff9ff3',width:2,type:'dashed'},
+    itemStyle:{color:'#ff9ff3'},
+    emphasis:{focus:'series'}
+  };
 
   var option={
     backgroundColor:'transparent',
@@ -695,11 +715,21 @@ function renderWXTChart(pid){
       axisPointer:{type:'cross',crossStyle:{color:'#999'}},
       formatter:function(params){
         var s='<b>'+params[0].axisValue+'</b>';
-        var total=0;
+        var total=0, totalG=0;
         params.forEach(function(p){
-          if(p.value>0){ s+='<br/>'+p.marker+' '+p.seriesName+': <b>'+fmtWan(p.value)+'</b>'; total+=p.value; }
+          if(p.seriesName==='ROI'){
+            if(p.value>0) s+='<br/><span style="color:#ff9ff3">●</span> <b>ROI: '+p.value.toFixed(2)+'</b>';
+          } else {
+            if(p.value>0){ s+='<br/>'+p.marker+' '+p.seriesName+': <b>'+fmtWan(p.value)+'</b>'; total+=p.value; }
+          }
         });
-        if(total>0) s+='<br/><span style="border-top:1px solid #555;display:block;margin-top:4px;padding-top:4px">合计: <b>'+fmtWan(total)+'</b></span>';
+        // 从 rawData 取该索引的 GMV
+        var idx=params[0].dataIndex;
+        if(idx>=0 && rawData[idx]){
+          totalG=rawData[idx].totalG||0;
+          total=rawData[idx].total||0;
+        }
+        if(total>0) s+='<br/><span style="border-top:1px solid #555;display:block;margin-top:4px;padding-top:4px">合计花费: <b>'+fmtWan(total)+'</b> · 总成交: <b>'+fmtWan(totalG)+'</b> · ROI: <b style="color:#ff9ff3">'+(total?totalG/total:0).toFixed(2)+'</b></span>';
         return s;
       }
     },
@@ -716,13 +746,23 @@ function renderWXTChart(pid){
       axisLine:{lineStyle:{color:'#333'}},
       axisTick:{show:false}
     },
-    yAxis:{
-      type:'value',
-      axisLabel:{color:'#667',fontSize:10,formatter:function(v){return fmtWan(v);}},
-      splitLine:{lineStyle:{color:'#1a2233'}},
-      axisLine:{show:false}
-    },
-    series: seriesList
+    yAxis:[
+      {
+        type:'value',
+        axisLabel:{color:'#667',fontSize:10,formatter:function(v){return fmtWan(v);}},
+        splitLine:{lineStyle:{color:'#1a2233'}},
+        axisLine:{show:false},
+        name:'花费(元)',nameTextStyle:{color:'#667',fontSize:10}
+      },
+      {
+        type:'value',
+        axisLabel:{color:'#ff9ff3',fontSize:10,formatter:function(v){return v.toFixed(1);}},
+        splitLine:{show:false},
+        axisLine:{show:false},
+        name:'ROI',nameTextStyle:{color:'#ff9ff3',fontSize:10}
+      }
+    ],
+    series: seriesList.concat([roiSeries])
   };
 
   if(!wxtChartInst) wxtChartInst=echarts.init(c);
