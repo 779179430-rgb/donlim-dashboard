@@ -491,14 +491,14 @@ document.getElementById('trend-dim').addEventListener('change', function(){ tren
 
 // ============ 全局筛选事件绑定 ============
 document.getElementById('filter-gran-month').addEventListener('click', function(){
-  filterGran='month'; this.classList.add('active');
+  filterGran='month'; trendGran='month'; this.classList.add('active');
   document.getElementById('filter-gran-day').classList.remove('active');
   document.getElementById('rng-month').style.display='';
   document.getElementById('rng-day').style.display='none';
   recomputeAll();
 });
 document.getElementById('filter-gran-day').addEventListener('click', function(){
-  filterGran='day'; this.classList.add('active');
+  filterGran='day'; trendGran='day'; this.classList.add('active');
   document.getElementById('filter-gran-month').classList.remove('active');
   document.getElementById('rng-month').style.display='none';
   document.getElementById('rng-day').style.display='';
