@@ -798,7 +798,24 @@ function renderWXT(pid){
       document.getElementById('wxt-chart').style.display='none';
       return;
     }
-    renderWXTTable(pid, w, w.sc, false);
+    // 全周期 fallback：直接用 WXT_BY_PID + SV_MODEL
+    var svS=0,svG=0;
+    if(typeof SV_MODEL!=='undefined' && SV_MODEL[MODEL_CODE]){ svS=SV_MODEL[MODEL_CODE].s||0; svG=SV_MODEL[MODEL_CODE].g_direct||0; }
+    var tS=w.s+svS, tG=w.g+svG, tR=tS?tG/tS:0;
+    var frows='';
+    Object.keys(w.sc||{}).forEach(function(sn){var s=w.sc[sn];var r=s.s?s.g/s.s:0;
+      frows+='<tr><td>'+sn+'</td><td class="text-right">'+fmtWan(s.s)+'</td><td class="text-right">'+fmtWan(s.g)+'</td><td class="text-right">'+r.toFixed(2)+'</td></tr>';});
+    if(svS>0){var sr=svS?svG/svS:0;
+      frows+='<tr><td><span style="color:#ffa502">●</span> 超级短视频</td><td class="text-right">'+fmtWan(svS)+'</td><td class="text-right">'+fmtWan(svG)+'</td><td class="text-right">'+sr.toFixed(2)+'</td></tr>';}
+    nameEl.textContent='（商品ID '+pid+'）';
+    box.innerHTML='<div class="wxt-summary">总花费 <b>'+fmtWan(tS)+'</b> · 直接成交 <b>'+fmtWan(tG)+'</b> · 投入产出比 <b>'+tR.toFixed(2)+'</b><span style="color:#5b6b7b;font-weight:400;margin-left:8px">(全周期)</span></div>'
+      +'<table class="data-table"><thead><tr>'
+      +'<th style="width:40%">推广工具</th><th class="text-right" style="width:20%">花费</th>'
+      +'<th class="text-right" style="width:20%">直接成交金额</th><th class="text-right" style="width:20%">投入产出比</th>'
+      +'</tr></thead><tbody>'+frows
+      +'<tr style="font-weight:700;border-top:1px solid var(--border)"><td>合计</td>'
+      +'<td class="text-right">'+fmtWan(tS)+'</td><td class="text-right">'+fmtWan(tG)+'</td><td class="text-right">'+tR.toFixed(2)+'</td></tr>'
+      +'</tbody></table>';
     return;
   }
 
@@ -834,16 +851,34 @@ function renderWXT(pid){
       +'<td class="text-right" style="width:20%">'+fmtWan(s.g)+'</td>'
       +'<td class="text-right" style="width:20%">'+ (s.s>0? r.toFixed(2) : '—') +'</td></tr>';
   });
+
+  // 超级短视频（型号级汇总，来自 SV_MODEL）
+  var svSpend=0, svGmv=0;
+  if(typeof SV_MODEL!=='undefined' && SV_MODEL[MODEL_CODE]){
+    svSpend = SV_MODEL[MODEL_CODE].s || 0;
+    svGmv = SV_MODEL[MODEL_CODE].g_direct || 0;
+  }
+  if(svSpend>0){
+    var svRoi = svSpend ? svGmv/svSpend : 0;
+    rows+='<tr><td style="width:40%"><span style="color:#ffa502">●</span> 超级短视频</td>'
+      +'<td class="text-right" style="width:20%">'+fmtWan(svSpend)+'</td>'
+      +'<td class="text-right" style="width:20%">'+fmtWan(svGmv)+'</td>'
+      +'<td class="text-right" style="width:20%">'+svRoi.toFixed(2)+'</td></tr>';
+  }
+
+  var totalSpend = dispSpend + svSpend;
+  var totalGmv  = dispGmv + svGmv;
+  var totalRoi   = totalSpend>0 ? (totalGmv/totalSpend) : 0;
   var total='<tr style="font-weight:700;border-top:1px solid var(--border)"><td>合计</td>'
-    +'<td class="text-right">'+fmtWan(dispSpend)+'</td>'
-    +'<td class="text-right">'+fmtWan(dispGmv)+'</td>'
-    +'<td class="text-right">'+ (dispSpend>0? roi.toFixed(2) : '—') +'</td></tr>';
+    +'<td class="text-right">'+fmtWan(totalSpend)+'</td>'
+    +'<td class="text-right">'+fmtWan(totalGmv)+'</td>'
+    +'<td class="text-right">'+ (totalSpend>0? totalRoi.toFixed(2) : '—') +'</td></tr>';
 
   var rangeLabel = useFiltered ?
     ('当前区间 · '+fd.length+'天 ('+(fd[0]||'')+' ~ '+((fd[fd.length-1])||'')+')') :
     '全周期（区间内无投放数据）';
 
-  box.innerHTML='<div class="wxt-summary">总花费 <b>'+fmtWan(dispSpend)+'</b> · 直接成交 <b>'+fmtWan(dispGmv)+'</b> · 投入产出比 <b>'+(dispSpend>0?roi.toFixed(2):'—')+'</b><span style="color:#5b6b7b;font-weight:400;margin-left:8px">('+rangeLabel+')</span></div>'
+  box.innerHTML='<div class="wxt-summary">总花费 <b>'+fmtWan(totalSpend)+'</b> · 直接成交 <b>'+fmtWan(totalGmv)+'</b> · 投入产出比 <b>'+(totalSpend>0?totalRoi.toFixed(2):'—')+'</b><span style="color:#5b6b7b;font-weight:400;margin-left:8px">('+rangeLabel+')</span></div>'
     +'<table class="data-table"><thead><tr>'
     +'<th style="width:40%">推广工具</th><th class="text-right" style="width:20%">花费</th>'
     +'<th class="text-right" style="width:20%">直接成交金额</th><th class="text-right" style="width:20%">投入产出比</th>'
