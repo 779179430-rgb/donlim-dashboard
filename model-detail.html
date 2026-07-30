@@ -353,6 +353,7 @@ var SV_METRICS={
 ;
 ;
 ;
+;
 
 
 var PROD_DAILY={
@@ -962,8 +963,8 @@ function renderWXT(pid){
   sceneRows.forEach(function(r){
     html+='<tr>'+nameCell(r)+rowCells(r, r.spend>0?(r.gmv/r.spend):0)+'</tr>';
   });
-  // 站内合计
-  html+='<tr style="font-weight:600;border-top:1px solid var(--border);background:rgba(0,210,255,.06)"><td>站内合计</td>'
+  // 站内合计（标黄小圆点）
+  html+='<tr style="font-weight:600;border-top:1px solid var(--border);background:rgba(0,210,255,.06)"><td><span style="color:#feca57">●</span> 站内合计</td>'
     +'<td class="text-right">'+fmtWan(inS)+'</td>'
     +'<td class="text-right">'+fmtWan(inG)+'</td>'
     +'<td class="text-right">'+insiteRoi.toFixed(2)+'</td>'
@@ -975,6 +976,15 @@ function renderWXT(pid){
   osA.rows.forEach(function(r){
     html+='<tr style="background:rgba(255,166,2,.04)">'+nameCell(r)+rowCells(r, r.spend>0?(r.gmv/r.spend):0)+'</tr>';
   });
+  // 站外合计（标黄小圆点）
+  var offsiteRoi=osA.spend>0?(osA.gmv/osA.spend):0;
+  html+='<tr style="font-weight:600;border-top:1px solid var(--border);background:rgba(255,166,2,.08)"><td><span style="color:#feca57">●</span> 站外合计</td>'
+    +'<td class="text-right">'+fmtWan(osA.spend)+'</td>'
+    +'<td class="text-right">'+fmtWan(osA.gmv)+'</td>'
+    +'<td class="text-right">'+offsiteRoi.toFixed(2)+'</td>'
+    +'<td class="text-right">'+(osA.clicks>0?(osA.spend/osA.clicks).toFixed(2):'—')+'</td>'
+    +'<td class="text-right">'+cartCost(osA.spend,osA.cart_n)+'</td>'
+    +'<td class="text-right">'+(osA.conv>0?(osA.spend/osA.conv).toFixed(2):'—')+'</td></tr>';
   // 总计
   html+='<tr style="font-weight:700;border-top:2px solid var(--border);background:rgba(46,204,113,.08)"><td>总计</td>'
     +'<td class="text-right">'+fmtWan(totalSpend)+'</td>'
@@ -988,6 +998,7 @@ function renderWXT(pid){
   box.innerHTML=html;
   renderWXTChart(pid);
 }
+
 
 
 
