@@ -597,78 +597,115 @@ function renderWXTChart(pid){
   if(!c) return;
   var daily=WXT_DAILY[String(pid)];
   if(!daily){ c.style.display='none'; return; }
+
   // get filtered dates from global filter
-  var fdates=getFilteredDates ? getFilteredDates() : null;
+  var fdates=(typeof getFilteredDates==='function') ? getFilteredDates() : null;
   var dates=Object.keys(daily).sort();
   if(fdates && fdates.length){
     dates=dates.filter(function(d){ return fdates.indexOf(d)>=0; });
   }
   if(!dates.length){ c.style.display='none'; return; }
 
-  // collect scene names across all days
-  var scenes={};
-  dates.forEach(function(d){
-    var dd=daily[d];
-    if(dd&&dd.sc) Object.keys(dd.sc).forEach(function(s){ scenes[s]=1; });
-  });
-  var sNames=Object.keys(scenes);
-
   if(wxtTimeDim==='total'){
     c.style.display='none';
     return;
   }
-
   c.style.display='';
+
   var isMonth=(wxtTimeDim==='month');
 
-  // aggregate if month
-  var dataMap={};
+  // collect scene names across filtered days
+  var sceneSet={};
+  dates.forEach(function(d){
+    var dd=daily[d];
+    if(dd&&dd.sc){ Object.keys(dd.sc).forEach(function(s){ sceneSet[s]=1; }); }
+  });
+  var sNames=Object.keys(sceneSet);
+
+  // build label + data arrays
+  var xLabels, rawData; // rawData: Array<{total, parts:{sn:val}}>
   if(isMonth){
+    var mMap={};
     dates.forEach(function(d){
       var m=d.substring(0,7);
-      if(!dataMap[m]) dataMap[m]={s:0,sc:{}};
+      if(!mMap[m]) mMap[m]={total:0,parts:{}};
       var dd=daily[d]||{s:0,sc:{}};
-      dataMap[m].s+=dd.s||0;
+      mMap[m].total+=Number(dd.s)||0;
       sNames.forEach(function(sn){
-        if(!dataMap[m].sc[sn]) dataMap[m].sc[sn]=0;
-        dataMap[m].sc[sn]+=(dd.sc[sn]?dd.sc[sn].s:0);
+        var v=0;
+        if(dd.sc&&dd.sc[sn] && dd.sc[sn].s!=null){ v=Number(dd.sc[sn].s)||0; }
+        mMap[m].parts[sn]=(mMap[m].parts[sn]||0)+v;
       });
+    });
+    xLabels=Object.keys(mMap).sort();
+    rawData=xLabels.map(function(m){ return mMap[m]; });
+  } else {
+    xLabels=dates;
+    rawData=dates.map(function(d){
+      var dd=daily[d]||{s:0,sc:{}};
+      var row={total:Number(dd.s)||0,parts:{}};
+      sNames.forEach(function(sn){
+        var v=0;
+        if(dd.sc&&dd.sc[sn] && dd.sc[sn].s!=null){ v=Number(dd.sc[sn].s)||0; }
+        row.parts[sn]=v;
+      });
+      return row;
     });
   }
 
-  var xLabels=isMonth?Object.keys(dataMap).sort():dates;
-  var seriesData={};
-  sNames.forEach(function(sn){
-    seriesData[sn]=[];
-    xLabels.forEach(function(lbl,i){
-      var dd=isMonth?(dataMap[lbl]||{}):(daily[lbl]||{});
-      seriesData[sn].push(dd.sc&&dd.sc[sn]?dd.sc[sn].s:0);
-    });
+  // build echarts series data — explicitly coerce to numbers
+  var seriesList=sNames.map(function(sn,i){
+    return {
+      name: sn,
+      type: 'line',
+      stack: 'wxt-spend',
+      areaStyle: { opacity: 0.3 },
+      smooth: false,
+      symbol: isMonth?'circle':'none',
+      symbolSize: isMonth?6:0,
+      data: rawData.map(function(row){ return Number(row.parts[sn])||0; }),
+      itemStyle: { color: ['#00d2ff','#00e396','#feca57','#ff6b6b','#7c5cfc','#a29bfe'][i%6] },
+      emphasis: { focus: 'series' }
+    };
   });
 
   var option={
     backgroundColor:'transparent',
-    tooltip:{trigger:'axis',axisPointer:{type:'shadow'},
-      formatter:function(p){
-        var s='<b>'+p[0].axisValue+'</b>';
-        p.forEach(function(pi){ s+='<br/>'+pi.marker+' '+pi.seriesName+': <b>'+fmtWan(pi.value)+'</b>'; });
+    tooltip:{
+      trigger:'axis',
+      axisPointer:{type:'cross',crossStyle:{color:'#999'}},
+      formatter:function(params){
+        var s='<b>'+params[0].axisValue+'</b>';
+        var total=0;
+        params.forEach(function(p){
+          if(p.value>0){ s+='<br/>'+p.marker+' '+p.seriesName+': <b>'+fmtWan(p.value)+'</b>'; total+=p.value; }
+        });
+        if(total>0) s+='<br/><span style="border-top:1px solid #555;display:block;margin-top:4px;padding-top:4px">合计: <b>'+fmtWan(total)+'</b></span>';
         return s;
-      }},
-    legend:{data:sNames,top:0,textStyle:{color:'#889',fontSize:11}},
-    grid:{left:50,right:20,top:40,bottom:30},
-    xAxis:{type:'category',data:xLabels,
-      axisLabel:{color:'#667',fontSize:10,formatter:function(v){return v.substring(5);},
-        interval:isMonth?'auto':Math.ceil(xLabels.length/12)},
-      axisLine:{lineStyle:{color:'#333'}},axisTick:{show:false}},
-    yAxis:{type:'value',axisLabel:{color:'#667',fontSize:10,formatter:function(v){return fmtWan(v);}},
-      splitLine:{lineStyle:{color:'#222'}},axisLine:{show:false}},
-    series:sNames.map(function(name,i){
-      return {name:name,type:'bar',stack:'wxt',
-        data:seriesData[name],
-        itemStyle:{color:['#00d2ff','#00e396','#feca57','#ff6b6b','#7c5cfc','#a29bfe'][i%6]},
-        emphasis:{focus:'series'}};
-    })
+      }
+    },
+    legend:{data:sNames,top:0,textStyle:{color:'#889',fontSize:11},itemWidth:14,itemHeight:8},
+    grid:{left:55,right:20,top:36,bottom:30},
+    xAxis:{
+      type:'category',
+      data:xLabels,
+      axisLabel:{
+        color:'#667',fontSize:10,
+        formatter:function(v){return v.substring(isMonth?0:5);},
+        interval:isMonth?0:Math.ceil(xLabels.length/16)
+      },
+      axisLine:{lineStyle:{color:'#333'}},
+      axisTick:{show:false}
+    },
+    yAxis:{
+      type:'value',
+      axisLabel:{color:'#667',fontSize:10,formatter:function(v){return fmtWan(v);}},
+      splitLine:{lineStyle:{color:'#1a2233'}},
+      axisLine:{show:false}
+    },
+    series: seriesList
   };
+
   if(!wxtChartInst) wxtChartInst=echarts.init(c);
   wxtChartInst.setOption(option,true);
 }
