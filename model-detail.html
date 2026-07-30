@@ -235,6 +235,9 @@ body {
         <select id="trend-dim" class="dim-select">
           <option value="pay">支付金额</option>
           <option value="net">扣退后实际</option>
+          <option value="wxtSpend">推广花费</option>
+          <option value="wr">推广费率</option>
+          <option value="wnr">扣退后推广费率</option>
           <option value="refund">退款额</option>
           <option value="vis">商品访客数</option>
           <option value="buy">支付买家数</option>
@@ -423,16 +426,16 @@ document.getElementById('model-badge').textContent = mn(MODEL_CODE);
 
 // ============ KPI 卡片渲染（动态，接受聚合结果）============
 // dim 映射：点击卡片时切换趋势图到对应维度
-var KPI_DIM_MAP = { pay:'pay', net:'net', refund:'refund', vis:'vis', buy:'buy', conv:'conv', pc:'pc', avgprice:'avgprice', dailyavg:'pay', ppb:'pc' };
+var KPI_DIM_MAP = { pay:'pay', net:'net', refund:'refund', vis:'vis', buy:'buy', conv:'conv', pc:'pc', avgprice:'avgprice', dailyavg:'pay', ppb:'pc', wxtSpend:'wxtSpend', wr:'wr', wnr:'wnr' };
 
 function renderKPIs(a){
   currentAggs = a; // 存储供其他模块引用
   var kpis = [
     { label:'支付金额',     value:fmtWan(a.pay),      sub:'PM完整口径 · 日均 '+fmtWan(a.dayAvg), color:'#00d2ff', dim:'pay' },
     { label:'扣退后实际',   value:fmtWan(a.net),       sub:'退款 '+fmtWan(a.ref), color:'#00e396', dim:'net' },
-    { label:'推广花费',     value:fmtWan(a.wxtSpend),  sub:'万相台全工具合计',       color:'#f368e0' },
-    { label:'推广费率',     value:a.wr>0?fmtPct(a.wr/100,2):'—', sub:'推广花费/支付金额',     color:'#ff9ff3' },
-    { label:'扣退后推广费率',value:a.wnr>0?fmtPct(a.wnr/100,2):'—',sub:'推广花费/扣退后实际', color:'#feca57' },
+    { label:'推广花费',     value:fmtWan(a.wxtSpend),  sub:'万相台全工具合计',       color:'#f368e0', dim:'wxtSpend' },
+    { label:'推广费率',     value:a.wr>0?fmtPct(a.wr/100,2):'—', sub:'推广花费/支付金额',     color:'#ff9ff3', dim:'wr' },
+    { label:'扣退后推广费率',value:a.wnr>0?fmtPct(a.wnr/100,2):'—',sub:'推广花费/扣退后实际', color:'#feca57', dim:'wnr' },
     { label:'退款率',       value:fmtPct(a.rr,1),      sub:'退款额 '+fmtWan(a.ref),color:a.rr>0.4?'#ff6b6b':'#ffa502', dim:'refund' },
     { label:'商品访客数',   value:fmtInt(a.vis),        sub:'支付买家 '+fmtInt(a.buy),color:'#54a0ff', dim:'vis' },
     { label:'支付买家数',   value:fmtInt(a.buy),        sub:'访客→买家转化',        color:'#48dbfb', dim:'buy' },
@@ -459,7 +462,10 @@ var trendDims = {
   buy:    {name:'支付买家数',type:'int',   color:'#48dbfb', daily:function(d){ var b=0; (MODEL_PIDS[MODEL_CODE]||[]).forEach(function(pid){ if(PROD_DAILY[pid]&&PROD_DAILY[pid][d]) b+=(PROD_DAILY[pid][d].b||0); }); return b; }},
   conv:   {name:'支付转化率',type:'pct',   color:'#1dd1a1', daily:function(d){ var v=0,b=0; (MODEL_PIDS[MODEL_CODE]||[]).forEach(function(pid){ if(PROD_DAILY[pid]&&PROD_DAILY[pid][d]){ v+=(PROD_DAILY[pid][d].v||0); b+=(PROD_DAILY[pid][d].b||0);} }); return v>0?b/v:0; }},
   pc:     {name:'支付件数',  type:'int',   color:'#7c5cfc', daily:function(d){ var v=0; (MODEL_PIDS[MODEL_CODE]||[]).forEach(function(pid){ if(PROD_DAILY[pid]&&PROD_DAILY[pid][d]) v+=(PROD_DAILY[pid][d].pc||0); }); return v; }},
-  avgprice:{name:'客单价',    type:'money', color:'#feca57', daily:function(d){ var p=0,b=0; (MODEL_PIDS[MODEL_CODE]||[]).forEach(function(pid){ if(PROD_DAILY[pid]&&PROD_DAILY[pid][d]){ p+=(PROD_DAILY[pid][d].p||0); b+=(PROD_DAILY[pid][d].b||0);} }); return b?p/b:0; }}
+  avgprice:{name:'客单价',    type:'money', color:'#feca57', daily:function(d){ var p=0,b=0; (MODEL_PIDS[MODEL_CODE]||[]).forEach(function(pid){ if(PROD_DAILY[pid]&&PROD_DAILY[pid][d]){ p+=(PROD_DAILY[pid][d].p||0); b+=(PROD_DAILY[pid][d].b||0);} }); return b?p/b:0; }},
+  wxtSpend:{name:'推广花费', type:'money', color:'#f368e0', daily:function(d){ var s=0; (MODEL_PIDS[MODEL_CODE]||[]).forEach(function(pid){ var wd=WXT_DAILY[String(pid)]; if(wd&&wd[d]) s+=wd[d].s||0; }); return s; }},
+  wr:     {name:'推广费率', type:'pct',   color:'#ff9ff3', daily:function(d){ var s=0,p=0; (MODEL_PIDS[MODEL_CODE]||[]).forEach(function(pid){ var wd=WXT_DAILY[String(pid)]; if(wd&&wd[d]) s+=wd[d].s||0; if(PROD_DAILY[pid]&&PROD_DAILY[pid][d]) p+=PROD_DAILY[pid][d].p||0; }); return p?s/p*100:0; }},
+  wnr:    {name:'扣退后推广费率',type:'pct',color:'#feca57', daily:function(d){ var s=0,n=0; (MODEL_PIDS[MODEL_CODE]||[]).forEach(function(pid){ var wd=WXT_DAILY[String(pid)]; if(wd&&wd[d]) s+=wd[d].s||0; if(PROD_DAILY[pid]&&PROD_DAILY[pid][d]) n+=(PROD_DAILY[pid][d].p||0)-(PROD_DAILY[pid][d].r||0); }); return n?s/n*100:0; }}
 };
 // ============ 趋势图粒度/维度独立控制（保留在趋势区域内）============
 var trendGran='month', trendDim='pay';
