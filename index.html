@@ -498,6 +498,7 @@ function renderCore(state){
   var R=resolve(state), dates=R.dates, months=R.months;
   // --- 生参核心 KPI ---
   var vis=dGet(dates,'sc','visitors'), buy=dGet(dates,'sc','buyers'), ord=dGet(dates,'sc','orders'), add=dGet(dates,'sc','addcart'), pay=dGet(dates,'sc','pay');
+  var ref=dGet(dates,'sc','refund'), payAfter=pay-ref;  // 扣退后支付金额(生参口径：支付金额−成功退款金额)
   var conv=vis?buy/vis:0, uv=vis?pay/vis:0, ticket=buy?pay/buy:0;
   document.getElementById('kpi-top').innerHTML=[
     {l:'访客数',v:fmtInt(vis),c:'color:#00d2ff',s:'区间累计'},
@@ -506,7 +507,9 @@ function renderCore(state){
     {l:'加购人数',v:fmtInt(add),c:'color:#ffa502',s:'区间累计'},
     {l:'支付转化率',v:fmtPct(conv),c:'color:#00d2ff',s:'买家/访客'},
     {l:'UV价值',v:'¥'+uv.toFixed(2),c:'color:#7c5cfc',s:'客单UV产出'},
-    {l:'客单价',v:'¥'+ticket.toFixed(0),c:'color:#2ecc71',s:'支付金额/买家'}
+    {l:'客单价',v:'¥'+ticket.toFixed(0),c:'color:#2ecc71',s:'支付金额/买家'},
+    {l:'扣退后支付金额',v:fmtWan(payAfter),c:'color:#2ecc71',s:'生参·支付金额−成功退款金额'},
+    {l:'生参退款率',v:fmtPct(pay?ref/pay:0),c:'color:#ff6b6b',s:'成功退款金额/支付金额'}
   ].map(function(x){return '<div class="kpi-card"><div class="kpi-label">'+x.l+'</div><div class="kpi-value" style="'+x.c+'">'+x.v+'</div><div class="kpi-sub">'+x.s+'</div></div>';}).join('');
 
   // --- 广告明细数据提取 ---
