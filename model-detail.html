@@ -958,8 +958,10 @@ function renderWXT(pid){
     svM=(typeof SV_METRICS!=='undefined')?SV_METRICS[MODEL_CODE]:null;
   }
 
-  // 站外工具聚合（含 clicks/cart_n(加购数)/conv）
-  function offsiteAgg(){
+  // 站外工具聚合（含 clicks/cart_n(加购数)/conv；按筛选区间比例缩放）
+  // 注意：OFFSITE_BY_MODEL 为全周期汇总，无逐日数据，故按日期占比近似折算
+  function offsiteAgg(scaleFactor){
+    if(!scaleFactor) scaleFactor=1;
     var os=OFFSITE_BY_MODEL?OFFSITE_BY_MODEL[MODEL_CODE]:null;
     var tools=[
       {name:'PA',gKey:'gmv_ec',gLabel:'引流电商GMV'},
@@ -970,13 +972,17 @@ function renderWXT(pid){
     var rows=[],oS=0,oG=0,oC=0,oCa=0,oCo=0;
     if(os) tools.forEach(function(t){
       var d=os[t.name]; if(!d||!d.spend) return;
-      var s=d.spend, g=d[t.gKey]||0, cl=d.clicks||0, ca=d.cart_n||0, co=d.conv||0;
+      var s=d.spend*scaleFactor, g=(d[t.gKey]||0)*scaleFactor, cl=(d.clicks||0)*scaleFactor, ca=(d.cart_n||0)*scaleFactor, co=(d.conv||0)*scaleFactor;
       oS+=s; oG+=g; oC+=cl; oCa+=ca; oCo+=co;
       rows.push({name:t.name,offsite:true,spend:s,gmv:g,gLabel:t.gLabel,clicks:cl,cart_n:ca,conv:co});
     });
-    return {rows:rows,spend:oS,gmv:oG,clicks:oC,cart_n:oCa,conv:oCo};
+    return {rows:rows,spend:oS,gmv:oG,clicks:oC,cart_n:oCa,conv:oCo,scale:scaleFactor};
   }
-  var osA=offsiteAgg();
+  // 计算站外缩放因子（筛选天数 / 全周期天数）
+  var _allDays = (typeof ALL_DATES!=='undefined') ? ALL_DATES.length : 204;
+  var _fd = (typeof getFilteredDates==='function') ? getFilteredDates() : null;
+  var _osScale = (_fd && _fd.length>0 && _fd.length<_allDays) ? (_fd.length/_allDays) : 1;
+  var osA=offsiteAgg(_osScale);
 
   // 无数据兜底
   if(!w && !svSpend && osA.rows.length===0){
@@ -1026,7 +1032,8 @@ function renderWXT(pid){
 
   var rangeLabel = useFiltered ? ('当前区间 · '+fd.length+'天 ('+(fdates[0]||'')+' ~ '+(fdates[fdates.length-1]||'')+')') : '全周期';
 
-  var html='<div class="wxt-summary">总花费 <b>'+fmtWan(totalSpend)+'</b> · 直接成交 <b>'+fmtWan(totalGmv)+'</b> · 投入产出比 <b>'+totalRoi.toFixed(2)+'</b><span style="color:#5b6b7b;font-weight:400;margin-left:8px">('+rangeLabel+' · 站内'+fmtWan(inS)+' + 站外'+fmtWan(osA.spend)+')</span></div>'
+  var _osNote = (_osScale<1) ? '(站外按区间比例折算)' : '';
+  var html='<div class="wxt-summary">总花费 <b>'+fmtWan(totalSpend)+'</b> · 直接成交 <b>'+fmtWan(totalGmv)+'</b> · 投入产出比 <b>'+totalRoi.toFixed(2)+'</b><span style="color:#5b6b7b;font-weight:400;margin-left:8px">('+rangeLabel+' · 站内'+fmtWan(inS)+' + 站外'+fmtWan(osA.spend)+_osNote+')</span></div>'
     +'<table class="data-table"><thead><tr>'
     +'<th style="width:24%">推广工具</th><th class="text-right" style="width:12%">花费</th>'
     +'<th class="text-right" style="width:16%">直接成交金额</th><th class="text-right" style="width:10%">投入产出比</th>'
