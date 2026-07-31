@@ -88,20 +88,17 @@ body {
 }
 .section-title.purple { color: var(--accent2); border-left-color: var(--accent2); }
 .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 0; }
-/* 分组导航 + 卡片区横向布局 */
-.kpi-groups-wrapper { display: flex; gap: 20px; align-items: flex-start; }
-.kpi-group-nav {
-  width: 120px; flex-shrink: 0; position: sticky; top: 80px;
-  display: flex; flex-direction: column; gap: 6px;
+/* 分组行：左侧标签 + 右侧红框卡片区 */
+.kpi-group-row { display: flex; gap: 16px; align-items: stretch; margin-bottom: 18px; }
+.kpi-group-label {
+  width: 110px; flex-shrink: 0; display: flex; align-items: center;
+  font-size: 13px; font-weight: 700; color: var(--accent);
+  padding-left: 4px; letter-spacing: .5px; white-space: nowrap;
 }
-.kpi-group-item {
-  padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: 600;
-  color: #8395a7; cursor: pointer; transition: all .2s; border-left: 3px solid transparent;
-  background: rgba(255,255,255,.02); white-space: nowrap;
+.kpi-group-box {
+  flex: 1; min-width: 0; border: 2px solid rgba(255,107,107,.35); border-radius: 12px;
+  padding: 16px; background: rgba(255,107,107,.03); position: relative;
 }
-.kpi-group-item:hover { color: #c8d6e2; background: rgba(255,255,255,.06); border-left-color: var(--accent); }
-.kpi-group-item.active { color: var(--accent); background: rgba(0,210,255,.08); border-left-color: var(--accent); }
-.kpi-groups-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 18px; }
 .kpi-card {
   background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px;
   padding: 20px 24px; position: relative; overflow: hidden;
@@ -157,11 +154,8 @@ body {
   .kpi-grid { grid-template-columns: repeat(2, 1fr); }
   .charts-grid, .charts-grid-2 { grid-template-columns: 1fr; }
   .store-grid { grid-template-columns: repeat(3, 1fr); }
-  .kpi-groups-wrapper { flex-direction: column; }
-  .kpi-group-nav { width: 100%; flex-direction: row; position: static; overflow-x: auto; }
-  .kpi-group-item { border-left: none; border-bottom: 3px solid transparent; white-space: nowrap; }
-  .kpi-group-item.active { border-bottom-color: var(--accent); border-left-color: transparent; }
-  .kpi-group-item:hover { border-left-color: transparent; border-bottom-color: var(--accent); }
+  .kpi-group-row { flex-direction: column; gap: 8px; }
+  .kpi-group-label { width: auto; padding: 8px 12px; background: rgba(255,107,107,.08); border-radius: 6px; border-left: 3px solid var(--accent); }
 }
 
   .filter-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:4px 0 14px;padding:8px 12px;background:rgba(255,255,255,.04);border:1px solid #2a3a4a;border-radius:8px;}
@@ -233,14 +227,21 @@ body {
   <div class="section-title">📈 店铺核心指标</div>
   <div class="filter-bar" id="fb-core"></div>
 
-  <div class="kpi-groups-wrapper">
-    <nav class="kpi-group-nav" id="kpi-nav"></nav>
-    <div class="kpi-groups-main">
-      <div class="kpi-grid" id="kpi-top" data-group="流量与转化基础"></div>
-      <div class="kpi-grid" id="kpi-ad" data-group="站内广告"></div>
-      <div class="kpi-grid" id="kpi-offsite" data-group="TR对赌监控"></div>
-      <div class="kpi-grid" id="kpi-outad" data-group="站外推广"></div>
-    </div>
+  <div class="kpi-group-row">
+    <div class="kpi-group-label">流量与转化基础</div>
+    <div class="kpi-group-box"><div class="kpi-grid" id="kpi-top"></div></div>
+  </div>
+  <div class="kpi-group-row">
+    <div class="kpi-group-label">站内广告</div>
+    <div class="kpi-group-box"><div class="kpi-grid" id="kpi-ad"></div></div>
+  </div>
+  <div class="kpi-group-row">
+    <div class="kpi-group-label">TR对赌监控</div>
+    <div class="kpi-group-box"><div class="kpi-grid" id="kpi-offsite"></div></div>
+  </div>
+  <div class="kpi-group-row">
+    <div class="kpi-group-label">站外推广</div>
+    <div class="kpi-group-box"><div class="kpi-grid" id="kpi-outad"></div></div>
   </div>
 
   <!-- 广告明细表格 + 花费占比饼图（并列） -->
@@ -605,36 +606,6 @@ function renderCore(state){
     {l:'小红星聚光',v:'花费'+fmtWan(stS)+' · ROI '+(stS?stR/stS:0).toFixed(2),c:'color:#ff6b6b',s:'成交'+fmtWan(stR)+' · 任务商品成交'},
     {l:'站内外总花费',v:'花费'+fmtWan(totalS)+' · ROI '+(totalS?totalR/totalS:0).toFixed(2),c:'color:#ffa502',s:'站内成交'+fmtWan(insiteR)+' + 站外成交'+fmtWan(offsiteR)}
   ].map(function(x){return '<div class="kpi-card"><div class="kpi-label">'+x.l+'</div><div class="kpi-value" style="'+x.c+'">'+x.v+'</div><div class="kpi-sub">'+x.s+'</div></div>';}).join('');
-
-  // --- 分组导航栏（仅初始化一次）---
-  var kn=document.getElementById('kpi-nav');
-  if(kn && !kn.dataset.init){
-    var _grids=document.querySelectorAll('.kpi-groups-main .kpi-grid');
-    _grids.forEach(function(g,i){
-      var nm=g.getAttribute('data-group')||('分组'+(i+1));
-      var it=document.createElement('div'); it.className='kpi-group-item'+(i===0?' active':'');
-      it.textContent=nm; it.dataset.target=g.id;
-      it.addEventListener('click', function(){
-        kn.querySelectorAll('.kpi-group-item').forEach(function(x){x.classList.remove('active');});
-        this.classList.add('active');
-        document.getElementById(this.dataset.target).scrollIntoView({behavior:'smooth',block:'center'});
-      });
-      kn.appendChild(it);
-    });
-    // 滚动时高亮当前可见分组
-    var _obs=new IntersectionObserver(function(entries){
-      entries.forEach(function(e){
-        if(e.isIntersecting){
-          var tid=e.target.id;
-          kn.querySelectorAll('.kpi-group-item').forEach(function(x){
-            x.classList.toggle('active', x.dataset.target===tid);
-          });
-        }
-      });
-    },{threshold:.25,root:document.querySelector('.kpi-groups-main'),rootMargin:'-80px 0px -40% 0px'});
-    _grids.forEach(function(g){ _obs.observe(g); });
-    kn.dataset.init='1';
-  }
 
   // --- 广告明细表格 ---
   // 各渠道点击量（来自数据源 Excel；超级直播/品牌专区无点击量字段，记为 0 → CPC 显示 —）
