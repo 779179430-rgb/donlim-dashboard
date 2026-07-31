@@ -568,15 +568,14 @@ function renderKPIs(a){
     card('扣退后站内推广总费率',a.wnr>0?fmtPct(a.wnr/100,2):'—','站内总花费/扣退后实际','#feca57','wnr')
   ]);
 
-  // --- 分组3：站外推广 ---
-  var g3Cards = [];
-  if(a.paS>0) g3Cards.push(card('PA', '花费'+fmtWan(a.paS)+' · ROI '+(a.paS?a.paG/a.paS:0).toFixed(2), '成交'+fmtWan(a.paG), '#8395a7'));
-  if(a.maS>0) g3Cards.push(card('红猫UDS', '花费'+fmtWan(a.maS)+' · ROI '+(a.maS?a.maG/a.maS:0).toFixed(2), '成交'+fmtWan(a.maG)+' · 计入TR', '#c8d6e2'));
-  if(a.dyS>0) g3Cards.push(card('抖音UDS', '花费'+fmtWan(a.dyS)+' · ROI '+(a.dyS?a.dyG/a.dyS:0).toFixed(2), '成交'+fmtWan(a.dyG), '#feca57'));
-  if(a.stS>0) g3Cards.push(card('小红星聚光', '花费'+fmtWan(a.stS)+' · ROI '+(a.stS?a.stG/a.stS:0).toFixed(2), '成交'+fmtWan(a.stG)+' · 任务商品成交', '#ff6b6b'));
-  if(g3Cards.length===0) g3Cards.push(card('站外广告','—','暂无数据','#5b6b7b'));
-  g3Cards.push(card('站外广告总花费', fmtWan(a.offsiteS), 'PA+红猫+抖音+小红星', '#ff6b6b'));
-  var g3 = cardRow(g3Cards);
+  // --- 分组3：站外推广（汇总卡片，不含具体工具明细）---
+  var osFr = a.pay ? a.offsiteS/a.pay*100 : 0;       // 站外总费率
+  var osNfr = a.net ? a.offsiteS/a.net*100 : 0;       // 扣退后站外推广总费率
+  var g3 = cardRow([
+    card('站外广告总花费',   fmtWan(a.offsiteS),      'PA+红猫+抖音+小红星', '#ff6b6b'),
+    card('站外总费率',       osFr>0?fmtPct(osFr/100,2):'—', '站外花费/支付金额', '#ff9ff3'),
+    card('扣退后站外推广总费率',osNfr>0?fmtPct(osNfr/100,2):'—','站外花费/扣退后实际','#feca57')
+  ]);
 
   // --- 分组4：站内外合计 ---
   var g4 = cardRow([
