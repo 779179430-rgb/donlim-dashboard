@@ -263,7 +263,14 @@ body {
 
   <div class="charts-grid">
     <div class="chart-panel full-width">
-      <h3>🔥 各型号销售排行</h3>
+      <h3 style="display:flex;align-items:center;justify-content:space-between">🔥 各型号销售排行
+        <span style="font-size:13px;font-weight:normal;color:#8395a7">
+          类目筛选：
+          <select id="cat-filter" style="background:#0e1a26;color:#c8d6e2;border:1px solid #1f3a4d;border-radius:4px;padding:3px 6px;font-size:13px;cursor:pointer">
+            <option value="">全部类目</option>
+          </select>
+        </span>
+      </h3>
       <div style="max-height:520px;overflow:auto">
         <table class="data-table" id="top-products-table" style="min-width:960px">
           <thead><tr>
@@ -321,6 +328,8 @@ function fmtInt(v){ v=v||0; return Math.round(v).toLocaleString('en-US'); }
 function fmtPct(v,d){ return (v*100).toFixed(d===undefined?1:d)+'%'; }
 function mLabel(m){ return m+'月'; }
 function pad2(n){ return n<10?'0'+n:''+n; }
+
+var CORE_STATE=null;  // 记录当前“核心”筛选项，供类目下拉联动重渲染
 
 var META = { start: DAILY.meta.start, end: DAILY.meta.end };
 var ALL_DATES = Object.keys(DAILY.series).sort();
@@ -495,6 +504,7 @@ function renderTarget(state){
 
 // ============ 区块3：店铺核心指标 ============
 function renderCore(state){
+  CORE_STATE=state;
   var R=resolve(state), dates=R.dates, months=R.months;
   // --- 生参核心 KPI ---
   var vis=dGet(dates,'sc','visitors'), buy=dGet(dates,'sc','buyers'), ord=dGet(dates,'sc','orders'), add=dGet(dates,'sc','addcart'), pay=dGet(dates,'sc','pay');
@@ -775,8 +785,20 @@ function renderCore(state){
     series:[{type:'pie', radius:['38%','68%'], center:['50%','52%'], data:catPieData, label:{color:'#c8d6e2', formatter:'{b}\n{d}%'}, itemStyle:{borderColor:'#0e1a26',borderWidth:2}}]
   },true);
 
+  // --- 类目筛选下拉（仅初始化一次；选项源自 CODE2CAT，与类目销售分布饼图同源）---
+  var cf=document.getElementById('cat-filter');
+  if(cf && !cf.dataset.initialized){
+    var _cats={};
+    Object.keys(CODE2CAT).forEach(function(k){ _cats[CODE2CAT[k]]=1; });
+    Object.keys(_cats).sort().forEach(function(c){ var o=document.createElement('option'); o.value=c; o.text=c; cf.appendChild(o); });
+    cf.addEventListener('change', function(){ if(CORE_STATE) renderCore(CORE_STATE); });
+    cf.dataset.initialized='1';
+  }
+
   // --- 各型号销售排行表（统一生参口径 + 生意经对比）---
   var ranked=sids.slice().sort(function(a,b){return modelPay[b]-modelPay[a];});
+  // 类目筛选：选中具体类目时仅保留该类目单品（CODE2CAT[s]||s 与下拉选项一致）
+  if(cf && cf.value){ ranked=ranked.filter(function(s){ return (CODE2CAT[s]||s)===cf.value; }); }
   var TCOLW=['3%','13%','9%','10%','8%','6%','9%','9%','9%','8%','8%'];
   var TW=function(i){return ' style="width:'+TCOLW[i]+'"';};
   function syjTag(val, fmtFn){ if(val===null||val===undefined) return ''; return '<span class="syj-cmp">'+fmtFn(val)+'</span>'; }
