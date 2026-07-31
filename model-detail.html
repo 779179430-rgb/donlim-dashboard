@@ -441,9 +441,11 @@ function computeAggregates(dates){
       wxtSpend += dd.s||0; wxtGmv += dd.g||0;
     });}
   });
-  // 超级短视频花费（按型号聚合，来自 SV_MODEL，全周期口径）
-  if(typeof SV_MODEL!=='undefined' && SV_MODEL[MODEL_CODE]){
-    svSpend = SV_MODEL[MODEL_CODE].s || 0;
+  // 超级短视频花费（按型号聚合，来自 SV_DAILY 逐日数据，与时间筛选联动）
+  var svSpend=0;
+  if(typeof SV_DAILY!=='undefined' && SV_DAILY[MODEL_CODE]){
+    var svd=SV_DAILY[MODEL_CODE];
+    dates.forEach(function(d){ if(svd[d]) svSpend+=svd[d].s||0; });
   }
   var siteInSpend = wxtSpend + svSpend;   // 站内总花费 = 万相台 + 超级短视频
   var net = pay - ref;
@@ -879,9 +881,14 @@ function renderWXT(pid){
     Object.keys(w.sc||{}).forEach(function(sn){ scenes[sn]={s:(w.sc[sn].s||0),g:(w.sc[sn].g||0)}; });
   }
 
-  // 超级短视频（型号级）
+  // 超级短视频（型号级，按筛选区间从 SV_DAILY 聚合）
   var svSpend=0, svGmv=0, svM=null;
-  if(typeof SV_MODEL!=='undefined' && SV_MODEL[MODEL_CODE]){ svSpend=SV_MODEL[MODEL_CODE].s||0; svGmv=SV_MODEL[MODEL_CODE].g_direct||0; svM=SV_METRICS[MODEL_CODE]||null; }
+  if(typeof SV_DAILY!=='undefined' && SV_DAILY[MODEL_CODE]){
+    var svd=SV_DAILY[MODEL_CODE];
+    var svDates=(fdates&&fdates.length)?fdates.filter(function(d){return svd[d]!=null;}):Object.keys(svd);
+    svDates.forEach(function(d){ svSpend+=(svd[d].s||0); svGmv+=(svd[d].g||0); });
+    svM=(typeof SV_METRICS!=='undefined')?SV_METRICS[MODEL_CODE]:null;
+  }
 
   // 站外工具聚合（含 clicks/cart_n(加购数)/conv）
   function offsiteAgg(){
