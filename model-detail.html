@@ -87,7 +87,18 @@ body {
   padding-left: 12px; border-left: 3px solid var(--accent);
 }
 .section-title.purple { color: var(--accent2); border-left-color: var(--accent2); }
-.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 0; }
+/* 分组行：左侧标签 + 右侧红框卡片区 */
+.kpi-group-row { display: flex; gap: 16px; align-items: stretch; margin-bottom: 18px; }
+.kpi-group-label {
+  width: 110px; flex-shrink: 0; display: flex; align-items: center;
+  font-size: 13px; font-weight: 700; color: var(--accent);
+  padding-left: 4px; letter-spacing: .5px; white-space: nowrap;
+}
+.kpi-group-box {
+  flex: 1; min-width: 0; border: 2px solid rgba(255,107,107,.35); border-radius: 12px;
+  padding: 16px; background: rgba(255,107,107,.03); position: relative;
+}
 .kpi-card {
   background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px;
   padding: 20px 24px; position: relative; overflow: hidden;
@@ -167,6 +178,8 @@ body {
   .kpi-grid { grid-template-columns: repeat(2, 1fr); }
   .charts-grid, .charts-grid-2 { grid-template-columns: 1fr; }
   .store-grid { grid-template-columns: repeat(3, 1fr); }
+  .kpi-group-row { flex-direction: column; gap: 8px; }
+  .kpi-group-label { width: auto; padding: 8px 12px; background: rgba(255,107,107,.08); border-radius: 6px; border-left: 3px solid var(--accent); }
 }
 
   .filter-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:4px 0 14px;padding:8px 12px;background:rgba(255,255,255,.04);border:1px solid #2a3a4a;border-radius:8px;}
@@ -224,8 +237,8 @@ body {
     <div class="filter-info" id="filter-info"></div>
   </div>
 
-  <!-- KPI 卡片 -->
-  <div class="kpi-grid" id="kpi-grid"></div>
+  <!-- KPI 卡片（分组展示） -->
+  <div id="kpi-groups"></div>
 
   <!-- 维度趋势图（粒度 + 指标筛选）-->
   <div class="chart-panel full-width" style="margin-bottom:24px">
@@ -456,12 +469,32 @@ function computeAggregates(dates){
   var ppb = buy ? pieces/buy : 0;
   var wr = pay ? siteInSpend/pay*100 : 0;      // 站内总费率
   var wnr = net ? siteInSpend/net*100 : 0;     // 扣退后站内推广总费率
+
+  // --- 站外广告聚合（来自 OFFSITE_BY_MODEL，按型号级全周期口径）---
+  var osData = (typeof OFFSITE_BY_MODEL!=='undefined') ? OFFSITE_BY_MODEL[MODEL_CODE] : null;
+  var paS=0, paG=0, maS=0, maG=0, dyS=0, dyG=0, stS=0, stG=0;
+  if(osData){
+    if(osData.PA){ paS=osData.PA.spend||0; paG=osData.PA.gmv_ec||0; }
+    if(osData['红猫UDS']){ maS=osData['红猫UDS'].spend||0; maG=osData['红猫UDS'].gmv_ec||0; }
+    if(osData['抖音UDS']){ dyS=osData['抖音UDS'].spend||0; dyG=osData['抖音UDS'].gmv_ec||0; }
+    if(osData['小红星聚光']){ stS=osData['小红星聚光'].spend||0; stG=osData['小红星聚光'].gmv_task||0; }
+  }
+  var offsiteS = paS + maS + dyS + stS;
+  var offsiteG = paG + maG + dyG + stG;
+  var totalS = siteInSpend + offsiteS;
+  var totalG = wxtGmv + offsiteG;   // 站内外总成交（万相台直接成交+站外成交）
+  var totalROI = totalS ? totalG/totalS : 0;
+
   return {
     pay:pay, net:net, ref:ref, rr:rr,
     vis:vis, buy:buy, cr:cr,
     pieces:pieces, ap:ap, avgPay:avgPay, ppb:ppb,
     wxtSpend:wxtSpend, wxtGmv:wxtGmv, svSpend:svSpend, siteInSpend:siteInSpend,
     wr:wr, wnr:wnr,
+    // 站外广告
+    paS:paS, paG:paG, maS:maS, maG:maG, dyS:dyS, dyG:dyG, stS:stS, stG:stG,
+    offsiteS:offsiteS, offsiteG:offsiteG,
+    totalS:totalS, totalG:totalG, totalROI:totalROI,
     dayAvg: dates.length ? pay/dates.length : 0,
     days: dates.length,
     dateStart: dates[0] || META.start,
@@ -508,26 +541,54 @@ var KPI_DIM_MAP = { pay:'pay', net:'net', refund:'refund', vis:'vis', buy:'buy',
 
 function renderKPIs(a){
   currentAggs = a; // 存储供其他模块引用
-  var kpis = [
-    { label:'支付金额',     value:fmtWan(a.pay),      sub:'PM完整口径 · 日均 '+fmtWan(a.dayAvg), color:'#00d2ff', dim:'pay' },
-    { label:'扣退后实际',   value:fmtWan(a.net),       sub:'退款 '+fmtWan(a.ref), color:'#00e396', dim:'net' },
-    { label:'站内总花费',     value:fmtWan(a.siteInSpend),  sub:'万相台+超级短视频',       color:'#f368e0', dim:'wxtSpend' },
-    { label:'站内总费率',     value:a.wr>0?fmtPct(a.wr/100,2):'—', sub:'站内总花费/支付金额',     color:'#ff9ff3', dim:'wr' },
-    { label:'扣退后站内推广总费率',value:a.wnr>0?fmtPct(a.wnr/100,2):'—',sub:'站内总花费/扣退后实际', color:'#feca57', dim:'wnr' },
-    { label:'退款率',       value:fmtPct(a.rr,1),      sub:'退款额 '+fmtWan(a.ref),color:a.rr>0.4?'#ff6b6b':'#ffa502', dim:'refund' },
-    { label:'商品访客数',   value:fmtInt(a.vis),        sub:'支付买家 '+fmtInt(a.buy),color:'#54a0ff', dim:'vis' },
-    { label:'支付买家数',   value:fmtInt(a.buy),        sub:'访客→买家转化',        color:'#48dbfb', dim:'buy' },
-    { label:'支付转化率',   value:a.vis>0?fmtPct(a.cr,2):'—', sub:'支付买家/商品访客', color:'#1dd1a1', dim:'conv' },
-    { label:'支付件数',     value:fmtInt(a.pieces),     sub:'客单价 '+fmtWan(a.ap), color:'#7c5cfc', dim:'pc' },
-    { label:'客单价',       value:fmtWan(a.avgPay),     sub:'支付金额/买家数',      color:'#feca57', dim:'avgprice' }
-  ];
-  var html = kpis.map(function(k){
-    return '<div class="kpi-card clickable'+(k.dim?'':'"')+'"'+(k.dim?' data-dim="'+k.dim+'"':'')+'>'
-      +'<div class="kpi-label">'+k.label+'</div>'
-      +'<div class="kpi-value" style="color:'+k.color+'">'+k.value+'</div>'
-      +'<div class="kpi-sub">'+k.sub+'</div></div>';
-  }).join('');
-  document.getElementById('kpi-grid').innerHTML = html;
+  function card(label,value,sub,color,dim){
+    return '<div class="kpi-card clickable'+(dim?'':'"')+'"'+(dim?' data-dim="'+dim+'"':'')+'>'
+      +'<div class="kpi-label">'+label+'</div>'
+      +'<div class="kpi-value" style="color:'+color+'">'+value+'</div>'
+      +'<div class="kpi-sub">'+sub+'</div></div>';
+  }
+  function cardRow(cards){ return '<div class="kpi-grid">'+cards.join('')+'</div>'; }
+
+  // --- 分组1：流量与转化基础 ---
+  var g1 = cardRow([
+    card('支付金额',     fmtWan(a.pay),      'PM完整口径 · 日均 '+fmtWan(a.dayAvg), '#00d2ff','pay'),
+    card('扣退后实际',   fmtWan(a.net),       '退款 '+fmtWan(a.ref), '#00e396','net'),
+    card('退款率',       fmtPct(a.rr,1),     '退款额 '+fmtWan(a.ref), a.rr>0.4?'#ff6b6b':'#ffa502','refund'),
+    card('商品访客数',   fmtInt(a.vis),       '支付买家 '+fmtInt(a.buy),'#54a0ff','vis'),
+    card('支付买家数',   fmtInt(a.buy),       '访客→买家转化','#48dbfb','buy'),
+    card('支付转化率',   a.vis>0?fmtPct(a.cr,2):'—', '支付买家/商品访客','#1dd1a1','conv'),
+    card('支付件数',     fmtInt(a.pieces),    '客单价 '+fmtWan(a.ap),'#7c5cfc','pc'),
+    card('客单价',       fmtWan(a.avgPay),    '支付金额/买家数','#feca57','avgprice')
+  ]);
+
+  // --- 分组2：站内推广 ---
+  var g2 = cardRow([
+    card('站内总花费',     fmtWan(a.siteInSpend), '万相台+超级短视频', '#f368e0','wxtSpend'),
+    card('站内总费率',     a.wr>0?fmtPct(a.wr/100,2):'—', '站内总花费/支付金额', '#ff9ff3','wr'),
+    card('扣退后站内推广总费率',a.wnr>0?fmtPct(a.wnr/100,2):'—','站内总花费/扣退后实际','#feca57','wnr')
+  ]);
+
+  // --- 分组3：站外推广 ---
+  var g3Cards = [];
+  if(a.paS>0) g3Cards.push(card('PA', '花费'+fmtWan(a.paS)+' · ROI '+(a.paS?a.paG/a.paS:0).toFixed(2), '成交'+fmtWan(a.paG), '#8395a7'));
+  if(a.maS>0) g3Cards.push(card('红猫UDS', '花费'+fmtWan(a.maS)+' · ROI '+(a.maS?a.maG/a.maS:0).toFixed(2), '成交'+fmtWan(a.maG)+' · 计入TR', '#c8d6e2'));
+  if(a.dyS>0) g3Cards.push(card('抖音UDS', '花费'+fmtWan(a.dyS)+' · ROI '+(a.dyS?a.dyG/a.dyS:0).toFixed(2), '成交'+fmtWan(a.dyG), '#feca57'));
+  if(a.stS>0) g3Cards.push(card('小红星聚光', '花费'+fmtWan(a.stS)+' · ROI '+(a.stS?a.stG/a.stS:0).toFixed(2), '成交'+fmtWan(a.stG)+' · 任务商品成交', '#ff6b6b'));
+  if(g3Cards.length===0) g3Cards.push(card('站外广告','—','暂无数据','#5b6b7b'));
+  g3Cards.push(card('站外广告总花费', fmtWan(a.offsiteS), 'PA+红猫+抖音+小红星', '#ff6b6b'));
+  var g3 = cardRow(g3Cards);
+
+  // --- 分组4：站内外合计 ---
+  var g4 = cardRow([
+    card('站内外总花费',   fmtWan(a.totalS), '站内 '+fmtWan(a.siteInSpend)+' + 站外 '+fmtWan(a.offsiteS), '#ff6b6b'),
+    card('站内外整体ROI', a.totalROI.toFixed(2), '总成交 '+fmtWan(a.totalG)+' / 总花费', '#00d2ff')
+  ]);
+
+  document.getElementById('kpi-groups').innerHTML =
+    '<div class="kpi-group-row"><div class="kpi-group-label">流量与转化基础</div><div class="kpi-group-box">'+g1+'</div></div>'
+    +'<div class="kpi-group-row"><div class="kpi-group-label">站内推广</div><div class="kpi-group-box">'+g2+'</div></div>'
+    +'<div class="kpi-group-row"><div class="kpi-group-label">站外推广</div><div class="kpi-group-box">'+g3+'</div></div>'
+    +'<div class="kpi-group-row"><div class="kpi-group-label">站内外合计</div><div class="kpi-group-box">'+g4+'</div></div>';
 }
 
 // ============ 维度趋势图（粒度切换 + 指标维度选择）============
@@ -607,7 +668,7 @@ document.getElementById('f-date-from').addEventListener('change', function(){ fi
 document.getElementById('f-date-to').addEventListener('change', function(){ filterDateTo=this.value; recomputeAll(); });
 
 // ============ KPI 卡片点击 → 趋势图联动 ============
-document.getElementById('kpi-grid').addEventListener('click', function(e){
+document.getElementById('kpi-groups').addEventListener('click', function(e){
   var card = e.target.closest('.kpi-card[data-dim]');
   if(!card || !card.dataset.dim) return;
   // 高亮当前卡片
