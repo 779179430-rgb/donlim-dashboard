@@ -454,11 +454,11 @@ function computeAggregates(dates){
       wxtSpend += dd.s||0; wxtGmv += dd.g||0;
     });}
   });
-  // 超级短视频花费（按型号聚合，来自 SV_DAILY 逐日数据，与时间筛选联动）
-  var svSpend=0;
+  // 超级短视频花费+成交（按型号聚合，来自 SV_DAILY 逐日数据，与时间筛选联动）
+  var svSpend=0, svGmv=0;
   if(typeof SV_DAILY!=='undefined' && SV_DAILY[MODEL_CODE]){
     var svd=SV_DAILY[MODEL_CODE];
-    dates.forEach(function(d){ if(svd[d]) svSpend+=svd[d].s||0; });
+    dates.forEach(function(d){ if(svd[d]){ svSpend+=svd[d].s||0; svGmv+=svd[d].g||0; } });
   }
   var siteInSpend = wxtSpend + svSpend;   // 站内总花费 = 万相台 + 超级短视频
   var net = pay - ref;
@@ -489,7 +489,7 @@ function computeAggregates(dates){
     pay:pay, net:net, ref:ref, rr:rr,
     vis:vis, buy:buy, cr:cr,
     pieces:pieces, ap:ap, avgPay:avgPay, ppb:ppb,
-    wxtSpend:wxtSpend, wxtGmv:wxtGmv, svSpend:svSpend, siteInSpend:siteInSpend,
+    wxtSpend:wxtSpend, wxtGmv:wxtGmv, svSpend:svSpend, svGmv:svGmv, siteInSpend:siteInSpend, siteInGmv:(wxtGmv+svGmv),
     wr:wr, wnr:wnr,
     // 站外广告
     paS:paS, paG:paG, maS:maS, maG:maG, dyS:dyS, dyG:dyG, stS:stS, stG:stG,
@@ -562,25 +562,33 @@ function renderKPIs(a){
   ]);
 
   // --- 分组2：站内推广 ---
+  var inROI = a.siteInSpend ? a.siteInGmv/a.siteInSpend : 0;
   var g2 = cardRow([
     card('站内总花费',     fmtWan(a.siteInSpend), '万相台+超级短视频', '#f368e0','wxtSpend'),
+    card('站内整体ROI',    inROI.toFixed(2),          '成交'+fmtWan(a.siteInGmv)+' / 花费', '#00d2ff'),
     card('站内总费率',     a.wr>0?fmtPct(a.wr/100,2):'—', '站内总花费/支付金额', '#ff9ff3','wr'),
     card('扣退后站内推广总费率',a.wnr>0?fmtPct(a.wnr/100,2):'—','站内总花费/扣退后实际','#feca57','wnr')
   ]);
 
-  // --- 分组3：站外推广（汇总卡片，不含具体工具明细）---
-  var osFr = a.pay ? a.offsiteS/a.pay*100 : 0;       // 站外总费率
-  var osNfr = a.net ? a.offsiteS/a.net*100 : 0;       // 扣退后站外推广总费率
+  // --- 分组3：站外推广（汇总卡片）---
+  var osFr = a.pay ? a.offsiteS/a.pay*100 : 0;
+  var osNfr = a.net ? a.offsiteS/a.net*100 : 0;
+  var osROI = a.offsiteS ? a.offsiteG/a.offsiteS : 0;
   var g3 = cardRow([
     card('站外广告总花费',   fmtWan(a.offsiteS),      'PA+红猫+抖音+小红星', '#ff6b6b'),
+    card('站外整体ROI',      osROI.toFixed(2),         '成交'+fmtWan(a.offsiteG)+' / 花费', '#00d2ff'),
     card('站外总费率',       osFr>0?fmtPct(osFr/100,2):'—', '站外花费/支付金额', '#ff9ff3'),
     card('扣退后站外推广总费率',osNfr>0?fmtPct(osNfr/100,2):'—','站外花费/扣退后实际','#feca57')
   ]);
 
   // --- 分组4：站内外合计 ---
+  var tFr = a.pay ? a.totalS/a.pay*100 : 0;         // 总费率
+  var tNfr = a.net ? a.totalS/a.net*100 : 0;        // 扣退后总费率
   var g4 = cardRow([
     card('站内外总花费',   fmtWan(a.totalS), '站内 '+fmtWan(a.siteInSpend)+' + 站外 '+fmtWan(a.offsiteS), '#ff6b6b'),
-    card('站内外整体ROI', a.totalROI.toFixed(2), '总成交 '+fmtWan(a.totalG)+' / 总花费', '#00d2ff')
+    card('站内外整体ROI', a.totalROI.toFixed(2), '总成交 '+fmtWan(a.totalG)+' / 总花费', '#00d2ff'),
+    card('总费率',        tFr>0?fmtPct(tFr/100,2):'—',   '总花费 / 支付金额', '#ff9ff3'),
+    card('扣退后总费率',   tNfr>0?fmtPct(tNfr/100,2):'—',  '总花费 / 扣退后实际', '#feca57')
   ]);
 
   document.getElementById('kpi-groups').innerHTML =
