@@ -470,14 +470,16 @@ function computeAggregates(dates){
   var wr = pay ? siteInSpend/pay*100 : 0;      // 站内总费率
   var wnr = net ? siteInSpend/net*100 : 0;     // 扣退后站内推广总费率
 
-  // --- 站外广告聚合（来自 OFFSITE_BY_MODEL，按型号级全周期口径）---
+  // --- 站外广告聚合（来自 OFFSITE_BY_MODEL，按时间区间比例缩放）---
+  var _allDays = (typeof ALL_DATES!=='undefined') ? ALL_DATES.length : 204;
+  var _osScale = (dates.length < _allDays) ? (dates.length / _allDays) : 1;
   var osData = (typeof OFFSITE_BY_MODEL!=='undefined') ? OFFSITE_BY_MODEL[MODEL_CODE] : null;
   var paS=0, paG=0, maS=0, maG=0, dyS=0, dyG=0, stS=0, stG=0;
   if(osData){
-    if(osData.PA){ paS=osData.PA.spend||0; paG=osData.PA.gmv_ec||0; }
-    if(osData['红猫UDS']){ maS=osData['红猫UDS'].spend||0; maG=osData['红猫UDS'].gmv_ec||0; }
-    if(osData['抖音UDS']){ dyS=osData['抖音UDS'].spend||0; dyG=osData['抖音UDS'].gmv_ec||0; }
-    if(osData['小红星聚光']){ stS=osData['小红星聚光'].spend||0; stG=osData['小红星聚光'].gmv_task||0; }
+    if(osData.PA){ paS=(osData.PA.spend||0)*_osScale; paG=(osData.PA.gmv_ec||0)*_osScale; }
+    if(osData['红猫UDS']){ maS=(osData['红猫UDS'].spend||0)*_osScale; maG=(osData['红猫UDS'].gmv_ec||0)*_osScale; }
+    if(osData['抖音UDS']){ dyS=(osData['抖音UDS'].spend||0)*_osScale; dyG=(osData['抖音UDS'].gmv_ec||0)*_osScale; }
+    if(osData['小红星聚光']){ stS=(osData['小红星聚光'].spend||0)*_osScale; stG=(osData['小红星聚光'].gmv_task||0)*_osScale; }
   }
   var offsiteS = paS + maS + dyS + stS;
   var offsiteG = paG + maG + dyG + stG;
