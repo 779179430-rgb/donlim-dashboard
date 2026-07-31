@@ -790,7 +790,7 @@ function renderCore(state){
   if(cf && !cf.dataset.initialized){
     var _cats={};
     Object.keys(CODE2CAT).forEach(function(k){ _cats[CODE2CAT[k]]=1; });
-    Object.keys(_cats).sort().forEach(function(c){ var o=document.createElement('option'); o.value=c; o.text=c; cf.appendChild(o); });
+    Object.keys(_cats).sort(function(a,b){ return (catPay[b]||0)-(catPay[a]||0); }).forEach(function(c){ var o=document.createElement('option'); o.value=c; o.text=c; cf.appendChild(o); });
     cf.addEventListener('change', function(){ if(CORE_STATE) renderCore(CORE_STATE); });
     cf.dataset.initialized='1';
   }
